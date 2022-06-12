@@ -3,6 +3,7 @@ package mingzhixian.top.novelneo.utils
 import mingzhixian.top.novelneo.R
 import org.json.JSONArray
 import org.json.JSONObject
+import kotlin.random.Random
 
 class dbTool {
   
@@ -54,8 +55,8 @@ class dbTool {
     val ary=JSONArray()
     for (i in 1..31){
       val item =JSONObject()
-      item.put("wordCount",4434)
-      item.put("hourCount",4)
+      item.put("wordCount",4321)
+      item.put("hourCount", Random.nextInt(0,14))
       ary.put(item)
     }
     info.put("heatMap",ary)

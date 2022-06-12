@@ -22,12 +22,12 @@ import mingzhixian.top.novelneo.ui.theme.NovelNeoTheme
 @Composable
 @Preview
 fun Pre1() {
-  booksBody()
+  BooksBody()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun booksBody() {
+fun BooksBody() {
   NovelNeoTheme {
     Scaffold(
       topBar = { NovelNeoBar(isNeedBack = true, name = "书架", image = R.drawable.search, onClick = {}) }

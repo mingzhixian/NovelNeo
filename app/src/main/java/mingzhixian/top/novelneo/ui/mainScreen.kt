@@ -1,6 +1,7 @@
 package mingzhixian.top.novelneo.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import mingzhixian.top.novelneo.R
 import mingzhixian.top.novelneo.ui.theme.NovelNeoTheme
+import java.util.*
 
 @Preview(showBackground = false, showSystemUi = false)
 @Composable
@@ -101,27 +103,62 @@ fun MainBody() {
                   .background(MaterialTheme.colorScheme.surface)
               ) {
                 val heatMap = info.getJSONArray("heatMap")
-                Column(
+                Row(
                   modifier = Modifier
-                    .padding(40.dp, 16.dp)
+                    .padding(14.dp, 16.dp)
                     .background(MaterialTheme.colorScheme.surface)
                 ) {
-                  var index = 0
-                  while (index <= heatMap.length()) {
+                  //月份
+                  Column {
+                    Text(text = Calendar.getInstance().get(Calendar.MONTH).toString() + "月")
+                  }
+                  //热力图
+                  Column(
+                    modifier = Modifier
+                      .padding(18.dp, 0.dp, 8.dp, 0.dp)
+                  ) {
+                    var index = 0
+                    //前4行肯定有，一直到28号
+                    for (i1 in 1..4) {
+                      Row(
+                        modifier = Modifier
+                          .padding(0.dp, 2.dp),
+                      ) {
+                        for (i2 in 1..7) {
+                          val ope = String.format("%.1f", (heatMap.getJSONObject(index).getInt("hourCount").toFloat() / 18)).toFloat()
+                          index++
+                          Box(
+                            modifier = Modifier
+                              .size(20.dp)
+                              .clip(shape = RoundedCornerShape(4.dp))
+                              .border(1.dp, MaterialTheme.colorScheme.surfaceVariant)
+                              .background(if (ope == 0f) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary.copy(alpha = ope))
+                          ) {}
+                          if (i2 < 7) Spacer(modifier = Modifier.weight(1f))
+                        }
+                      }
+                    }
+                    //28号之后的几天
                     Row(
                       modifier = Modifier
-                        .padding(0.dp,4.dp),
+                        .padding(0.dp, 2.dp),
                     ) {
-                      for (i in 1..7) {
-                        val ope = "0.4"
-                        index++
-                        Box(
-                          modifier = Modifier
-                            .size(20.dp)
-                            .clip(shape = RoundedCornerShape(4.dp))
-                            .background(MaterialTheme.colorScheme.primary.copy(alpha = ope.toFloat()))
-                        ) {}
-                        if (i<7) Spacer(modifier = Modifier.weight(1f))
+                      for (i2 in 1..7) {
+                        //结束
+                        if (index >= heatMap.length()) {
+                          Box(modifier = Modifier.size(20.dp)) {}
+                        } else {
+                          val ope = String.format("%.1f", (heatMap.getJSONObject(index).getInt("hourCount").toFloat() / 18)).toFloat()
+                          index++
+                          Box(
+                            modifier = Modifier
+                              .size(20.dp)
+                              .clip(shape = RoundedCornerShape(4.dp))
+                              .border(1.dp, MaterialTheme.colorScheme.surfaceVariant)
+                              .background(if (ope == 0f) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary.copy(alpha = ope))
+                          ) {}
+                        }
+                        if (i2 < 7) Spacer(modifier = Modifier.weight(1f))
                       }
                     }
                   }

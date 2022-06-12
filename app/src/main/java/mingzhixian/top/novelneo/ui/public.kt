@@ -3,6 +3,7 @@ package mingzhixian.top.novelneo.ui
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.TopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,27 +26,14 @@ import org.json.JSONObject
 fun Pre2() {
   Column(
     modifier = Modifier
-      .background(MaterialTheme.colorScheme.secondaryContainer)
-      .padding(18.dp, 24.dp)
+      .background(MaterialTheme.colorScheme.background)
   ) {
-    NovelNeoBar(true, "书架", R.drawable.search, {})
-    val msg1 = JSONObject()
-    msg1.put("title", "狼王1")
-    msg1.put("additional", "第369章 吃葡萄不吐皮")
-    msg1.put("cover", R.drawable.cover)
-    BookCard(msg = msg1, {}, {})
-    Spacer(modifier = Modifier.height(12.dp))
-    val msg2 = JSONObject()
-    msg2.put("title", "狼王2")
-    msg2.put("additional", "第369章 吃葡萄不吐皮")
-    msg2.put("cover", R.drawable.cover)
-    BookCard(msg = msg2, {}, {})
-    Spacer(modifier = Modifier.height(12.dp))
-    val msg3 = JSONObject()
-    msg3.put("title", "狼王3")
-    msg3.put("additional", "第369章 吃葡萄不吐皮")
-    msg3.put("cover", R.drawable.cover)
-    BookCard(msg = msg3, {}, {})
+    val msg = JSONObject()
+    msg.put("title", "剑门第一仙")
+    msg.put("author", "北川")
+    msg.put("sort", "东方玄幻")
+    BookItem(msg, {})
+    Spacer(modifier = Modifier.height(30.dp))
   }
 }
 
@@ -53,41 +41,49 @@ fun Pre2() {
 @Composable
 fun NovelNeoBar(isNeedBack: Boolean, name: String, image: Int, onClick: () -> Unit) {
   NovelNeoTheme {
-    Row(
+    TopAppBar(
+      backgroundColor = MaterialTheme.colorScheme.surface,
       modifier = Modifier
-        .height(50.dp)
-        .fillMaxWidth()
-        .background(MaterialTheme.colorScheme.surfaceVariant)
-        .padding(10.dp, 6.dp),
-      verticalAlignment = Alignment.CenterVertically,
+        .height(50.dp),
+      elevation = 8.dp
     ) {
-      if (isNeedBack) {
+      Row(
+        modifier = Modifier
+          .height(50.dp)
+          .fillMaxWidth()
+          .padding(10.dp, 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+      ) {
+        if (isNeedBack) {
+          Image(
+            painter = painterResource(id = R.drawable.back),
+            contentDescription = "返回",
+            modifier = Modifier
+              .fillMaxHeight()
+              .padding(0.dp, 4.dp)
+              //todo 返回事件
+              .clickable { }
+          )
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        Text(
+          text = name,
+          fontSize = 30.sp,
+          fontWeight = FontWeight.SemiBold,
+          modifier = Modifier
+            .padding(8.dp, 0.dp)
+        )
+        Spacer(modifier = Modifier.weight(1f))
         Image(
-          painter = painterResource(id = R.drawable.back),
-          contentDescription = "返回",
+          painter = painterResource(id = image),
+          contentDescription = "设置或搜索",
           modifier = Modifier
             .fillMaxHeight()
             .padding(0.dp, 4.dp)
+            .clickable(onClick = onClick)
         )
       }
-      Text(
-        text = name,
-        fontSize = 30.sp,
-        fontWeight = FontWeight.SemiBold,
-        modifier = Modifier
-          .padding(8.dp, 0.dp)
-      )
-      Spacer(modifier = Modifier.weight(1f))
-      Image(
-        painter = painterResource(id = image),
-        contentDescription = "设置或搜索",
-        modifier = Modifier
-          .fillMaxHeight()
-          .padding(0.dp, 4.dp)
-          .clickable(onClick = onClick)
-      )
     }
-    
   }
 }
 
@@ -147,5 +143,50 @@ fun BookCard(msg: JSONObject, onClick: () -> Unit, onLongClick: () -> Unit) {
         maxLines = 3,
       )
     }
+  }
+}
+
+//发现页用每本书的列表项
+@Composable
+fun BookItem(msg: JSONObject, onClick: () -> Unit) {
+//横向排列
+  Row(
+    modifier = Modifier
+      //内边距
+      .padding(18.dp, 6.dp)
+      .clickable(onClick=onClick)
+  ) {
+    //标题
+    Text(
+      text = "《" + msg.getString("title") + "》",
+      color=MaterialTheme.colorScheme.onSurface,
+      overflow = TextOverflow.Ellipsis,
+      fontSize = 16.sp,
+      maxLines = 1,
+      modifier = Modifier
+        .weight(0.5f)
+    )
+    //作者
+    Text(
+      text = "作者:" + msg.getString("author"),
+      color=MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+      overflow = TextOverflow.Ellipsis,
+      fontSize = 14.sp,
+      maxLines = 1,
+      modifier = Modifier
+        .weight(0.3f)
+        .padding(0.dp,1.dp)
+    )
+    //类别
+    Text(
+      text = msg.getString("sort"),
+      color=MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+      overflow = TextOverflow.Ellipsis,
+      fontSize = 14.sp,
+      maxLines = 1,
+      modifier = Modifier
+        .weight(0.2f)
+        .padding(0.dp,1.dp)
+    )
   }
 }
