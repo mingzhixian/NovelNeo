@@ -1,23 +1,24 @@
 package mingzhixian.top.novelneo.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import mingzhixian.top.novelneo.R
 import mingzhixian.top.novelneo.ui.theme.NovelNeoTheme
 import java.util.*
@@ -25,33 +26,73 @@ import java.util.*
 @Preview(showBackground = false, showSystemUi = false)
 @Composable
 fun Pre1() {
-  MainBody()
+  MainBody(navController = rememberNavController())
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun MainBody() {
+fun MainBody(navController: NavHostController) {
   NovelNeoTheme {
-    Scaffold(
-      //todo 添加设置界面
-      topBar = { NovelNeoBar(isNeedBack = false, name = "NovelNeo", image = R.drawable.set, onClick = {}) }
-    ) { innerPadding ->
+    //状态栏、导航栏
+    val statusbarColor = MaterialTheme.colorScheme.background
+    rememberSystemUiController().run {
+      setStatusBarColor(statusbarColor, !isSystemInDarkTheme())
+      setSystemBarsColor(statusbarColor, !isSystemInDarkTheme())
+      setNavigationBarColor(statusbarColor, !isSystemInDarkTheme())
+    }
+    Scaffold { innerPadding ->
       LazyColumn(
         modifier = Modifier
           .padding(innerPadding)
           .background(MaterialTheme.colorScheme.background)
       ) {
         item {
+          Spacer(modifier = Modifier.height(60.dp))
+        }
+        stickyHeader {
+          Box(
+            modifier = Modifier
+              .height(60.dp)
+              .background(MaterialTheme.colorScheme.surface),
+          ) {
+            Row(
+              modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp, 0.dp, 10.dp, 0.dp)
+                .height(50.dp),
+              verticalAlignment = Alignment.CenterVertically,
+            ) {
+              Text(
+                text = "NovelNeo",
+                fontSize = 30.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier
+                  .padding(8.dp, 0.dp)
+              )
+              Spacer(modifier = Modifier.weight(1f))
+              Image(
+                painter = painterResource(id = R.drawable.set),
+                contentDescription = "设置或搜索",
+                modifier = Modifier
+                  .fillMaxHeight()
+                  .padding(0.dp, 6.dp)
+                  .clickable(onClick = { navController.navigate("set") })
+              )
+            }
+          }
+        }
+        item {
           Spacer(modifier = Modifier.height(30.dp))
         }
         //最近更新
-        //todo 添加点击事件,以及下拉更新
+        //todo 下拉更新
         item {
           Box(
             modifier = Modifier
               .padding(18.dp, 0.dp)
               .clip(shape = RoundedCornerShape(16.dp))
               .background(MaterialTheme.colorScheme.surfaceVariant)
+              .clickable{navController.navigate("books")}
           ) {
             Column(
               modifier = Modifier
@@ -65,7 +106,8 @@ fun MainBody() {
               )
               val items = DB.getUpdateBooks()
               for (index in items.indices) {
-                BookCard(msg = items[index], onClick = {}, onLongClick = {})
+                //TODO 前往阅读界面和详情界面
+                BookCard(msg = items[index], back = MaterialTheme.colorScheme.surface, onClick = {navController.navigate("read")}, onLongClick = {navController.navigate("detail")})
                 if (index < items.size - 1) {
                   Spacer(modifier = Modifier.height(12.dp))
                 }
@@ -193,7 +235,6 @@ fun MainBody() {
                       .padding(0.dp, 28.dp, 0.dp, 0.dp),
                   )
                 }
-                
                 //最近阅读时长
                 Column(
                   modifier = Modifier
@@ -223,7 +264,38 @@ fun MainBody() {
                 }
               }
             }
-            
+          }
+        }
+        //空白
+        item {
+          Spacer(modifier = Modifier.height(30.dp))
+        }
+        //前往推荐榜
+        item {
+          Row {
+            Spacer(modifier = Modifier.weight(1f))
+            Button(
+              onClick = { navController.navigate("find") },
+              modifier = Modifier
+                .width(200.dp)
+            ) {
+              Text(
+                text = "去看看推荐榜",
+                modifier = Modifier
+                  .fillMaxWidth()
+                  .padding(10.dp, 6.dp),
+                textAlign = TextAlign.Center,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+              )
+              Image(
+                painter = painterResource(id = R.drawable.next),
+                contentDescription = "前往推荐榜",
+                modifier = Modifier
+                  .size(20.dp)
+              )
+            }
+            Spacer(modifier = Modifier.weight(1f))
           }
         }
         //空白

@@ -18,6 +18,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import mingzhixian.top.novelneo.R
 import mingzhixian.top.novelneo.ui.BookItem
 import mingzhixian.top.novelneo.ui.NETWORK
@@ -28,16 +30,16 @@ import org.json.JSONObject
 @Composable
 @Preview
 fun Pre() {
-  FindBody()
+  FindBody(navController = rememberNavController())
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FindBody() {
+fun FindBody(navController: NavHostController) {
   NovelNeoTheme {
     Scaffold(
       //todo 添加搜索函数
-      topBar = { NovelNeoBar(isNeedBack = true, name = "发现", image = R.drawable.search, onClick = {}) }
+      topBar = { NovelNeoBar(isNeedBack = true, name = "发现", image = R.drawable.search, onClick = {}, navController = navController) }
     ) { innerPadding ->
       LazyColumn(
         modifier = Modifier
@@ -62,10 +64,11 @@ fun FindBody() {
               .padding(18.dp, 0.dp)
           ) {
             for (i in 0..2) {
-              //todo 添加点击前往详情页事件
-              ThreeCard(msg = mustReadBooks[i], onClick = {})
+              Box(modifier = Modifier.weight(0.28f)){
+                ThreeCard(msg = mustReadBooks[i], onClick = {navController.navigate("detail")})
+              }
               if (i < 2) {
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.weight(0.08f))
               }
             }
           }
@@ -76,8 +79,7 @@ fun FindBody() {
         }
         //榜单
         itemsIndexed(mustReadBooks.slice(3 until mustReadBooks.size)) { index, msg ->
-          //todo 点击前往详情页
-          BookItem(msg = msg, onClick = {})
+          BookItem(msg = msg, onClick = {navController.navigate("detail")})
           if (index < mustReadBooks.size - 4) {
             Divider(
               thickness = 1.dp,
@@ -95,8 +97,7 @@ fun FindBody() {
               .padding(18.dp, 20.dp)
               .clip(shape = RoundedCornerShape(12.dp))
               .background(MaterialTheme.colorScheme.secondaryContainer)
-              //todo 前往所有分类页
-              .clickable { }
+              .clickable { navController.navigate("sorts") }
           ) {
             Text(
               text = "前往所有分类",
@@ -128,13 +129,15 @@ fun FindBody() {
 //必读榜前三卡片
 @Composable
 fun ThreeCard(msg: JSONObject, onClick: () -> Unit) {
-  Column {
+  Column(modifier = Modifier
+    .fillMaxWidth()
+  ) {
     //封面
     Image(
       painter = painterResource(id = msg.getInt("cover")),
       contentDescription = "榜单前三",
       modifier = Modifier
-        .width(110.dp)
+        .fillMaxWidth()
         .padding(4.dp, 2.dp)
         .clip(shape = RoundedCornerShape(12.dp))
         .clickable(onClick = onClick)
@@ -148,7 +151,7 @@ fun ThreeCard(msg: JSONObject, onClick: () -> Unit) {
       maxLines = 1,
       textAlign = TextAlign.Center,
       modifier = Modifier
-        .width(110.dp)
+        .fillMaxWidth()
     )
     //作者
     Text(
@@ -159,7 +162,7 @@ fun ThreeCard(msg: JSONObject, onClick: () -> Unit) {
       maxLines = 1,
       textAlign = TextAlign.Center,
       modifier = Modifier
-        .width(110.dp)
+        .fillMaxWidth()
     )
   }
 }

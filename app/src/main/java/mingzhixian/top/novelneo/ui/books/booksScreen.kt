@@ -13,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import mingzhixian.top.novelneo.R
 import mingzhixian.top.novelneo.ui.BookCard
 import mingzhixian.top.novelneo.ui.DB
@@ -22,15 +24,15 @@ import mingzhixian.top.novelneo.ui.theme.NovelNeoTheme
 @Composable
 @Preview
 fun Pre1() {
-  BooksBody()
+  BooksBody(navHostController = rememberNavController())
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BooksBody() {
+fun BooksBody(navHostController: NavHostController) {
   NovelNeoTheme {
     Scaffold(
-      topBar = { NovelNeoBar(isNeedBack = true, name = "书架", image = R.drawable.search, onClick = {}) }
+      topBar = { NovelNeoBar(isNeedBack = true, name = "书架", image = R.drawable.search, onClick = {}, navController = navHostController) }
     ) { innerPadding ->
       LazyColumn(
         modifier = Modifier
@@ -38,7 +40,7 @@ fun BooksBody() {
           .background(MaterialTheme.colorScheme.background)
           .fillMaxSize()
       ) {
-        item { 
+        item {
           Spacer(modifier = Modifier.height(20.dp))
         }
         item {
@@ -63,7 +65,7 @@ fun BooksBody() {
             ) {
               val items = DB.getUpdateBooks()
               for (index in items.indices) {
-                BookCard(msg = items[index], onClick = {}, onLongClick = {})
+                BookCard(msg = items[index], back = MaterialTheme.colorScheme.surface, onClick = {navHostController.navigate("read")}, onLongClick = {navHostController.navigate("detail")})
                 if (index < items.size - 1) {
                   Spacer(modifier = Modifier.height(12.dp))
                 }
@@ -92,7 +94,7 @@ fun BooksBody() {
             ) {
               val items = DB.getReadBooks()
               for (index in items.indices) {
-                BookCard(msg = items[index], onClick = {}, onLongClick = {})
+                BookCard(msg = items[index], back = MaterialTheme.colorScheme.surface, onClick = {navHostController.navigate("read")}, onLongClick = {navHostController.navigate("detail")})
                 if (index < items.size - 1) {
                   Spacer(modifier = Modifier.height(12.dp))
                 }
@@ -121,7 +123,7 @@ fun BooksBody() {
             ) {
               val items = DB.getHaveReadBooks()
               for (index in items.indices) {
-                BookCard(msg = items[index], onClick = {}, onLongClick = {})
+                BookCard(msg = items[index], back = MaterialTheme.colorScheme.surface, onClick = {navHostController.navigate("read")}, onLongClick = {navHostController.navigate("detail")})
                 if (index < items.size - 1) {
                   Spacer(modifier = Modifier.height(12.dp))
                 }
