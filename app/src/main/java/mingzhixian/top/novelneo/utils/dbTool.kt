@@ -20,7 +20,7 @@ class Book(
   //简介
   @ColumnInfo var content: String,
   //目录
-  @ColumnInfo var menu: JSONArray,
+  @ColumnInfo var menu: String,
   //书的网络地址
   @ColumnInfo var url: String,
   //当前阅读章
@@ -34,6 +34,8 @@ class Book(
 //阅读统计
 @Entity(tableName = "count")
 class Count(
+  //月
+  @ColumnInfo var month: Int,
   //天
   @PrimaryKey var day: Int,
   //当天字数统计
@@ -51,11 +53,11 @@ interface BooksDao {
   
   //书架新加书
   @Insert
-  suspend fun insertBook(book: Book)
+  fun insertBook(book: Book)
   
   //书架移除书
   @Query("DELETE FROM books where title=:bookTitle")
-  suspend fun deleteBook(bookTitle: String)
+  fun deleteBook(bookTitle: String)
 }
 
 @Dao
@@ -66,20 +68,19 @@ interface CountDao {
   
   //清除旧的数据
   @Query("delete from count")
-  suspend fun deleteOld()
+  fun deleteOld()
   
   //新的一天
   @Insert
-  suspend fun newDay(day: Count)
+  fun newDay(day: Count)
   
   //更新今天的数据
   @Query("update count set wordCount=:word,hourCount=:hour where day=:day")
-  suspend fun update(day: Int, word: Int, hour: Int)
+  fun update(day: Int, word: Int, hour: Int)
 }
 
 @Database(entities = [Book::class, Count::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
-  
   abstract fun booksDao(): BooksDao
   abstract fun countDao(): CountDao
   
@@ -90,7 +91,7 @@ abstract class AppDatabase : RoomDatabase() {
         instance = Room.databaseBuilder(
           context.applicationContext,
           AppDatabase::class.java,
-          "novelNeo.db"
+          "novel.db" //数据库名称
         ).allowMainThreadQueries().build()
       }
       return instance as AppDatabase
@@ -100,8 +101,9 @@ abstract class AppDatabase : RoomDatabase() {
 
 class DbTool(context: Context) {
   //获取数据库
-  private val booksDao = AppDatabase.getInstance(context = context).booksDao()
-  private val countDao = AppDatabase.getInstance(context = context).countDao()
+  private val instance = AppDatabase.getInstance(context)
+  private val booksDao = instance.booksDao()
+  private val countDao = instance.countDao()
   
   //获取数据库最新更新的所有书籍
   fun getUpdateBooks(): ArrayList<JSONObject> {
@@ -129,7 +131,7 @@ class DbTool(context: Context) {
       msg1.put("url", item.url)
       msg1.put("author", item.author)
       msg1.put("sort", item.sort)
-      msg1.put("additional", item.menu.getJSONObject(item.menu.length() - 1).getString("title"))
+      msg1.put("additional", JSONArray(item.menu).getJSONObject(JSONArray(item.menu).length() - 1).getString("title"))
       msg1.put("status", item.status)
       msg1.put("content", item.content)
       msg1.put("current", item.current)
@@ -140,12 +142,12 @@ class DbTool(context: Context) {
   }
   
   //新加一本书到书架
-  suspend fun newBook(book: Book) {
+  fun newBook(book: Book) {
     booksDao.insertBook(book)
   }
   
   //书架移除一本书
-  suspend fun deleteBook(msg: JSONObject) {
+  fun deleteBook(msg: JSONObject) {
     booksDao.deleteBook(msg.getString("title"))
   }
   
@@ -155,17 +157,20 @@ class DbTool(context: Context) {
     //新建json对象
     var wordCount = 0
     var hourCount = 0
+    var month=0
     val info = JSONObject()
     val ary = JSONArray()
     //添加数据
     for (i in count.indices) {
       val item = JSONObject()
+      month=count[i].month
       wordCount += count[i].wordCount
       hourCount += count[i].hourCount
       item.put("wordCount", count[i].wordCount)
       item.put("hourCount", count[i].hourCount)
       ary.put(item)
     }
+    info.put("month",month)
     info.put("wordCount", wordCount)
     info.put("hourCount", hourCount)
     info.put("heatMap", ary)
@@ -173,18 +178,18 @@ class DbTool(context: Context) {
   }
   
   //更新当天的阅读统计
-  suspend fun updateCount(word: Int, hour: Int) {
+  fun updateCount(word: Int, hour: Int) {
     countDao.update(Calendar.getInstance().get(Calendar.DAY_OF_MONTH), word = word, hour = hour)
   }
   
   //数据库统计清空重建（下一个月）
-  suspend fun reSetCount() {
+  fun reSetCount() {
     //删除旧数据
     countDao.deleteOld()
     //重建新月
     val month = if (Calendar.getInstance().get(Calendar.MONTH) in listOf(2, 4, 6, 9, 11)) 30 else 31
     for (i in 1..month) {
-      countDao.newDay(Count(i, 0, 0))
+      countDao.newDay(Count(Calendar.getInstance().get(Calendar.MONTH), i, 0, 0))
     }
   }
   
