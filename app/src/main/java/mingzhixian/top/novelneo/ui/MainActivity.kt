@@ -5,11 +5,11 @@ import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import mingzhixian.top.novelneo.utils.dbTool
-import mingzhixian.top.novelneo.utils.networkTool
+import mingzhixian.top.novelneo.utils.DbTool
+import mingzhixian.top.novelneo.utils.NetworkTool
 
-val DB = dbTool()
-val NETWORK = networkTool()
+val DB = DbTool(getAppContext())
+val NETWORK = NetworkTool()
 
 class MainActivity : ComponentActivity() {
   companion object {

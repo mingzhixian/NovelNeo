@@ -159,7 +159,7 @@ fun NovelNeoBar(isNeedBack: Boolean, name: String, image: Int, onClick: () -> Un
             .padding(8.dp, 0.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
-        if (image!=0){
+        if (image != 0) {
           Image(
             painter = painterResource(id = image),
             contentDescription = "设置或搜索",
@@ -198,7 +198,7 @@ fun BookCard(msg: JSONObject, back: Color, onClick: () -> Unit, onLongClick: () 
   ) {
     //封面
     Image(
-      painter = painterResource(id = msg.getInt("cover")), //描述
+      painter = painterResource(R.drawable.cover), //描述
       contentDescription = "封面",
       contentScale = ContentScale.Crop,
       modifier = Modifier

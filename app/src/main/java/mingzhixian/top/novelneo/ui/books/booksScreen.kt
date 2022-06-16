@@ -50,7 +50,6 @@ fun BooksBody(navHostController: NavHostController) {
               .padding(12.dp, 10.dp)
           )
         }
-        //todo 添加点击事件
         item {
           Box(
             modifier = Modifier

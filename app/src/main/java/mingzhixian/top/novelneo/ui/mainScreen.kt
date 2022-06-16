@@ -106,7 +106,6 @@ fun MainBody(navController: NavHostController) {
               )
               val items = DB.getUpdateBooks()
               for (index in items.indices) {
-                //TODO 前往阅读界面和详情界面
                 BookCard(msg = items[index], back = MaterialTheme.colorScheme.surface, onClick = {navController.navigate("read")}, onLongClick = {navController.navigate("detail")})
                 if (index < items.size - 1) {
                   Spacer(modifier = Modifier.height(12.dp))

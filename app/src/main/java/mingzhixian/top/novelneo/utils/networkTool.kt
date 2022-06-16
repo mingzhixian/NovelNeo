@@ -4,7 +4,7 @@ import mingzhixian.top.novelneo.R
 import org.json.JSONArray
 import org.json.JSONObject
 
-class networkTool {
+class NetworkTool {
   //联网获取书架书籍更新
   fun getBooksUpdate(): ArrayList<JSONObject> {
     val msgs = ArrayList<JSONObject>()
