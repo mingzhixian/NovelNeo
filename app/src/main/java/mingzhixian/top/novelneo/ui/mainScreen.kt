@@ -1,5 +1,6 @@
 package mingzhixian.top.novelneo.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,7 +22,6 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import mingzhixian.top.novelneo.R
 import mingzhixian.top.novelneo.ui.theme.NovelNeoTheme
-import java.util.*
 
 @Preview(showBackground = false, showSystemUi = false)
 @Composable
@@ -29,6 +29,7 @@ fun Pre1() {
   MainBody(navController = rememberNavController())
 }
 
+@SuppressLint("MutableCollectionMutableState")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun MainBody(navController: NavHostController) {
@@ -92,7 +93,7 @@ fun MainBody(navController: NavHostController) {
               .padding(18.dp, 0.dp)
               .clip(shape = RoundedCornerShape(16.dp))
               .background(MaterialTheme.colorScheme.surfaceVariant)
-              .clickable{navController.navigate("books")}
+              .clickable { navController.navigate("books") }
           ) {
             Column(
               modifier = Modifier
@@ -104,9 +105,9 @@ fun MainBody(navController: NavHostController) {
                 modifier = Modifier
                   .padding(6.dp, 4.dp, 0.dp, 12.dp)
               )
-              val items = DB.getUpdateBooks()
+              val  items = DB.getUpdateBooks()
               for (index in items.indices) {
-                BookCard(msg = items[index], back = MaterialTheme.colorScheme.surface, onClick = {navController.navigate("read")}, onLongClick = {navController.navigate("detail")})
+                BookCard(msg = items[index], back = MaterialTheme.colorScheme.surface, onClick = { navController.navigate("read") }, onLongClick = { navController.navigate("detail") })
                 if (index < items.size - 1) {
                   Spacer(modifier = Modifier.height(12.dp))
                 }
@@ -120,6 +121,7 @@ fun MainBody(navController: NavHostController) {
         }
         //本月阅读统计
         item {
+          //获取数据库数据
           val info = DB.getStatistics()
           Box(
             modifier = Modifier
@@ -151,7 +153,7 @@ fun MainBody(navController: NavHostController) {
                 ) {
                   //月份
                   Column {
-                    Text(text = Calendar.getInstance().get(Calendar.MONTH).toString() + "月")
+                    Text(text = info.getInt("month").toString() + "月")
                   }
                   //热力图
                   Column(

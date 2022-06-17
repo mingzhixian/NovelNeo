@@ -31,19 +31,6 @@ class Book(
   @ColumnInfo var status: Int
 )
 
-//阅读统计
-@Entity(tableName = "count")
-class Count(
-  //月
-  @ColumnInfo var month: Int,
-  //天
-  @PrimaryKey var day: Int,
-  //当天字数统计
-  @ColumnInfo var wordCount: Int,
-  //当天阅读时长统计
-  @ColumnInfo var hourCount: Int,
-)
-
 @Dao
 interface BooksDao {
   
@@ -59,6 +46,19 @@ interface BooksDao {
   @Query("DELETE FROM books where title=:bookTitle")
   fun deleteBook(bookTitle: String)
 }
+
+//阅读统计
+@Entity(tableName = "count")
+class Count(
+  //月
+  @ColumnInfo var month: Int,
+  //天
+  @PrimaryKey var day: Int,
+  //当天字数统计
+  @ColumnInfo var wordCount: Int,
+  //当天阅读时长统计
+  @ColumnInfo var hourCount: Int,
+)
 
 @Dao
 interface CountDao {
@@ -157,20 +157,20 @@ class DbTool(context: Context) {
     //新建json对象
     var wordCount = 0
     var hourCount = 0
-    var month=0
+    var month = 0
     val info = JSONObject()
     val ary = JSONArray()
     //添加数据
     for (i in count.indices) {
       val item = JSONObject()
-      month=count[i].month
+      month = count[i].month
       wordCount += count[i].wordCount
       hourCount += count[i].hourCount
       item.put("wordCount", count[i].wordCount)
       item.put("hourCount", count[i].hourCount)
       ary.put(item)
     }
-    info.put("month",month)
+    info.put("month", month)
     info.put("wordCount", wordCount)
     info.put("hourCount", hourCount)
     info.put("heatMap", ary)
@@ -187,9 +187,10 @@ class DbTool(context: Context) {
     //删除旧数据
     countDao.deleteOld()
     //重建新月
-    val month = if (Calendar.getInstance().get(Calendar.MONTH) in listOf(2, 4, 6, 9, 11)) 30 else 31
-    for (i in 1..month) {
-      countDao.newDay(Count(Calendar.getInstance().get(Calendar.MONTH), i, 0, 0))
+    val month = Calendar.getInstance().get(Calendar.MONTH) + 1
+    val days = if (month in listOf(2, 4, 6, 9, 11)) 30 else 31
+    for (i in 1..days) {
+      countDao.newDay(Count(month, i, 0, 0))
     }
   }
   
