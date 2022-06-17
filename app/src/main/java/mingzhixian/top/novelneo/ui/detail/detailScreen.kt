@@ -50,6 +50,8 @@ fun DetailBody(navHostController: NavHostController, msg: JSONObject) {
     val detail = NETWORK.getDetails(msg = msg)
     val menu = detail.getJSONArray("menu")
     var isShowMenu by remember { mutableStateOf(false) }
+    msg.put("content",detail.getString("content"))
+    msg.put("menu",menu)
     Scaffold(
       bottomBar = { if (!isShowMenu) DetailBottomBar(msg, { isShowMenu = !isShowMenu }, {}, {}) }
     ) { innerPadding ->

@@ -105,11 +105,14 @@ fun NovelHost() {
       //todo 获取路由附加信息
       val msg1 = JSONObject()
       msg1.put("title", "圣古传奇之穿越后我变秃了，也变强了")
-      msg1.put("url", "https://www.exiaoshuo.com/xuanhuan/")
       msg1.put("author", "北川")
-      msg1.put("sort", "东方玄幻")
       msg1.put("cover", R.drawable.cover)
+      msg1.put("sort", "东方玄幻")
+      msg1.put("url", "https://www.exiaoshuo.com/xuanhuan/")
       msg1.put("additional", "第1010章 大结局")
+      msg1.put("current", 0)
+      msg1.put("currentPage", 1)
+      msg1.put("status", 4)
       DetailBody(navHostController = navController, msg1)
     }
     composable("read",
