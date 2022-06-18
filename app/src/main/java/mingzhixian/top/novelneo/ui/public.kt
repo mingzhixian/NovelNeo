@@ -1,5 +1,7 @@
 package mingzhixian.top.novelneo.ui
 
+import android.content.ContentValues
+import android.util.Log
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
@@ -62,6 +64,7 @@ fun NovelHost() {
       popEnterTransition = { slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(360)) },
       exitTransition = { slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(360)) }
     ) {
+      Log.e(ContentValues.TAG, "main ")
       MainBody(navController = navController)
     }
     composable("find",

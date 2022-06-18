@@ -143,7 +143,7 @@ class DbTool(context: Context) {
   
   //新加一本书到书架
   fun newBook(msg: JSONObject) {
-    booksDao.insertBook(Book(msg.getString("title"), msg.getString("author"), msg.getString("cover"), msg.getString("sort"), msg.getString("content"), msg.getString("url"), msg.getInt("current"), msg.getInt("currentPage"),msg.getString("latest"), msg.getInt("status")))
+    booksDao.insertBook(Book(msg.getString("title"), msg.getString("author"), msg.getString("cover"), msg.getString("sort"), msg.getString("content"), msg.getString("url"), msg.getInt("current"), msg.getInt("currentPage"),msg.getString("latest"), 2))
   }
   
   //书架移除一本书

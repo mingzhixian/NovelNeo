@@ -1,5 +1,7 @@
 package mingzhixian.top.novelneo.ui.sorts
 
+import android.content.ContentValues
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,35 +18,43 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import mingzhixian.top.novelneo.R
 import mingzhixian.top.novelneo.ui.BookCard
 import mingzhixian.top.novelneo.ui.NETWORK
 import mingzhixian.top.novelneo.ui.NovelNeoBar
 import mingzhixian.top.novelneo.ui.theme.NovelNeoTheme
-
-@Composable
-@Preview
-fun Pre() {
-  SortsBody(navController = rememberNavController())
-}
+import org.json.JSONObject
+import kotlin.concurrent.thread
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SortsBody(navController: NavHostController) {
+  Log.e(ContentValues.TAG, "SortsBody")
+  //所有分类
+  var sorts = ArrayList<JSONObject>()
+  //列表
+  var books = ArrayList<JSONObject>()
+  var selectSort by remember { mutableStateOf(-1) }
+  var reLoadSorts by remember { mutableStateOf(false) }
+  var reLoadBooks by remember { mutableStateOf(false) }
+  //协程获取分类
+  thread {
+    sorts = NETWORK.getAllSorts()
+    reLoadSorts = !reLoadSorts
+    selectSort = 0
+    thread {
+      books = NETWORK.getSortBooks(sorts[selectSort])
+      reLoadBooks = !reLoadBooks
+    }
+  }
   NovelNeoTheme {
     Scaffold(
       //todo 添加搜索函数
-      topBar = { NovelNeoBar(isNeedBack = true, name = "分类", image = R.drawable.search, onClick = {}, navController = navController) }
+      topBar = { NovelNeoBar(isNeedBack = true, name = "分类", image = mingzhixian.top.novelneo.R.drawable.search, onClick = {}, navController = navController) }
     ) { innerPadding ->
       Row(modifier = Modifier.padding(innerPadding)) {
-        //所有分类
-        val sorts = NETWORK.getAllSorts()
-        var selectSort by remember { mutableStateOf(0) }
         //所有分类
         LazyColumn(
           modifier = Modifier
@@ -58,23 +68,32 @@ fun SortsBody(navController: NavHostController) {
             .padding(8.dp, 12.dp),
           horizontalAlignment = Alignment.CenterHorizontally
         ) {
-          itemsIndexed(sorts) { index, sort ->
-            Box(
-              modifier = Modifier
-                .fillMaxWidth()
-                .clip(shape = RoundedCornerShape(20.dp))
-                .clickable { selectSort = index }
-                .background(if (selectSort == index) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.surface)
-            ) {
-              Text(
-                text = sort.getString("name"),
-                fontSize = 16.sp,
-                textAlign = TextAlign.Center,
-                color = (if (selectSort == index) MaterialTheme.colorScheme.onTertiary else MaterialTheme.colorScheme.onSurface),
+          //如果加载完成则更新ui
+          if (reLoadSorts || !reLoadSorts) {
+            itemsIndexed(sorts) { index, sort ->
+              Box(
                 modifier = Modifier
                   .fillMaxWidth()
-                  .padding(0.dp, 8.dp),
-              )
+                  .clip(shape = RoundedCornerShape(20.dp))
+                  .clickable {
+                    selectSort = index
+                    thread {
+                      books = NETWORK.getSortBooks(sorts[selectSort])
+                      reLoadBooks = !reLoadBooks
+                    }
+                  }
+                  .background(if (selectSort == index) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.surface)
+              ) {
+                Text(
+                  text = sort.getString("name"),
+                  fontSize = 16.sp,
+                  textAlign = TextAlign.Center,
+                  color = (if (selectSort == index) MaterialTheme.colorScheme.onTertiary else MaterialTheme.colorScheme.onSurface),
+                  modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(0.dp, 8.dp),
+                )
+              }
             }
           }
         }
@@ -86,10 +105,11 @@ fun SortsBody(navController: NavHostController) {
             .padding(18.dp, 20.dp),
           verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-          //列表
-          val books = NETWORK.getSortBooks(sorts[selectSort])
-          items(books) { book ->
-            BookCard(book, MaterialTheme.colorScheme.surfaceVariant, {navController.navigate("detail?book=$book")}, {})
+          //重新加载列表
+          if (reLoadBooks || !reLoadBooks) {
+            items(books) { book ->
+              BookCard(book, MaterialTheme.colorScheme.surfaceVariant, { navController.navigate("detail?book=$book") }, {})
+            }
           }
           //底部空白
           item {

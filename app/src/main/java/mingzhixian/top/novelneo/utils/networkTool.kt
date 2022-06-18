@@ -1,8 +1,14 @@
 package mingzhixian.top.novelneo.utils
 
+import android.annotation.SuppressLint
 import mingzhixian.top.novelneo.R
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.json.JSONArray
 import org.json.JSONObject
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.jsoup.select.Elements
 
 class NetworkTool {
   //联网获取书架书籍更新
@@ -40,13 +46,19 @@ class NetworkTool {
   }
   
   //联网获取所有分类
+  @SuppressLint("RestrictedApi")
   fun getAllSorts(): ArrayList<JSONObject> {
+    val url= "https://www.exiaoshuo.com/wangyou/"
+    val lis: Elements? = getDoc(url)?.select("div[class=nav] > ul > li")
     val msgs = ArrayList<JSONObject>()
-    for (i in 1..8) {
-      val msg1 = JSONObject()
-      msg1.put("name", "玄幻小说")
-      msg1.put("url", "https://www.exiaoshuo.com/xuanhuan/")
-      msgs.add(msg1)
+    if (lis != null) {
+      for (index in 1..lis.size-2) {
+        val element = lis[index]
+        val msg1 = JSONObject()
+        msg1.put("name", element.select("a").text())
+        msg1.put("url", url + element.select("a").attr("href"))
+        msgs.add(msg1)
+      }
     }
     return msgs
   }
@@ -64,7 +76,7 @@ class NetworkTool {
       msg1.put("url", "https://www.exiaoshuo.com/xuanhuan/")
       msg1.put("current", 0)
       msg1.put("currentPage", 0)
-      msg1.put("latest","大结局")
+      msg1.put("latest", "大结局")
       msg1.put("status", 4)
       msgs.add(msg1)
     }
@@ -84,10 +96,22 @@ class NetworkTool {
       msg1.put("url", "https://www.exiaoshuo.com/xuanhuan/")
       msg1.put("current", 0)
       msg1.put("currentPage", 0)
-      msg1.put("latest","大结局")
+      msg1.put("latest", "大结局")
       msg1.put("status", 4)
       msgs.add(msg1)
     }
     return msgs
+  }
+  
+  //网络请求
+  fun getDoc(url: String): Document? {
+    val okHttpClient = OkHttpClient() //创建单例
+    val requestBuilder = Request.Builder()
+    val request: Request = requestBuilder.url(url = url).build()
+    val response = okHttpClient.newCall(request).execute()
+    val str = response.body!!.string()
+    response.body!!.close()
+    //把字符串内容转换成Document节点内容
+    return Jsoup.parse(str)
   }
 }

@@ -35,16 +35,27 @@ fun DetailBody(navHostController: NavHostController, msg: JSONObject) {
   NovelNeoTheme {
     val menu = NETWORK.getMenu(msg)
     var isShowMenu by remember { mutableStateOf(false) }
+    var isClickBooks by remember { mutableStateOf(false) }
     Scaffold(
       //todo 立即阅读界面
-      bottomBar = { if (!isShowMenu) DetailBottomBar(msg, { isShowMenu = !isShowMenu }, {}, { if (DB.isInBooks(msg = msg)) DB.deleteBook(msg = msg) else DB.newBook(msg = msg) }) }
+      bottomBar = {
+        if (!isShowMenu) DetailBottomBar(msg, isClickBooks, { isShowMenu = !isShowMenu }, {}, {
+          if (DB.isInBooks(msg = msg)) {
+            DB.deleteBook(msg = msg)
+            isClickBooks = !isClickBooks
+          } else {
+            DB.newBook(msg = msg)
+            isClickBooks = !isClickBooks
+          }
+        })
+      }
     ) { innerPadding ->
       //上半部分
       Box(modifier = Modifier.padding(innerPadding)) {
         //顶部背景图片
         AsyncImage(
           //网络图片
-          model=msg.getString("cover"),
+          model = msg.getString("cover"),
           contentDescription = "头图背景",
           contentScale = ContentScale.Crop,
           modifier = Modifier
@@ -66,7 +77,7 @@ fun DetailBody(navHostController: NavHostController, msg: JSONObject) {
           //封面
           AsyncImage(
             //网络图片
-            model=msg.getString("cover"),
+            model = msg.getString("cover"),
             contentDescription = "封面",
             modifier = Modifier
               .padding(40.dp, 80.dp, 0.dp, 40.dp)
@@ -173,7 +184,7 @@ fun DetailBody(navHostController: NavHostController, msg: JSONObject) {
 
 //底部栏
 @Composable
-fun DetailBottomBar(msg: JSONObject, onClick1: () -> Unit, onClick2: () -> Unit, onClick3: () -> Unit) {
+fun DetailBottomBar(msg: JSONObject, isClickBooks: Boolean, onClick1: () -> Unit, onClick2: () -> Unit, onClick3: () -> Unit) {
   Row(modifier = Modifier.height(60.dp)) {
     Column(
       modifier = Modifier
@@ -218,10 +229,12 @@ fun DetailBottomBar(msg: JSONObject, onClick1: () -> Unit, onClick2: () -> Unit,
         contentDescription = "书架",
         modifier = Modifier.height(30.dp)
       )
-      Text(
-        text = if (DB.isInBooks(msg = msg)) "移出书架" else "加入书架",
-        fontSize = 16.sp
-      )
+      if (isClickBooks || !isClickBooks) {
+        Text(
+          text = if (DB.isInBooks(msg = msg)) "移出书架" else "加入书架",
+          fontSize = 16.sp
+        )
+      }
     }
   }
 }
