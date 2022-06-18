@@ -66,7 +66,7 @@ fun BooksBody(navHostController: NavHostController) {
             ) {
               val items = DB.getUpdateBooks()
               for (index in items.indices) {
-                BookCard(msg = items[index], back = MaterialTheme.colorScheme.surface, onClick = { navHostController.navigate("read") }, onLongClick = { navHostController.navigate("detail") })
+                BookCard(msg = items[index],  back = MaterialTheme.colorScheme.surface, onClick = { navHostController.navigate("read") }, onLongClick = { navHostController.navigate("detail?book=" + items[index].toString()) })
                 if (index < items.size - 1) {
                   Spacer(modifier = Modifier.height(12.dp))
                 }
@@ -95,7 +95,7 @@ fun BooksBody(navHostController: NavHostController) {
             ) {
               val items = DB.getReadBooks()
               for (index in items.indices) {
-                BookCard(msg = items[index], back = MaterialTheme.colorScheme.surface, onClick = { navHostController.navigate("read") }, onLongClick = { navHostController.navigate("detail") })
+                BookCard(msg = items[index], back = MaterialTheme.colorScheme.surface, onClick = { navHostController.navigate("read") }, onLongClick = { navHostController.navigate("detail?book=" + items[index].toString()) })
                 if (index < items.size - 1) {
                   Spacer(modifier = Modifier.height(12.dp))
                 }
@@ -124,7 +124,7 @@ fun BooksBody(navHostController: NavHostController) {
             ) {
               val items = DB.getHaveReadBooks()
               for (index in items.indices) {
-                BookCard(msg = items[index], back = MaterialTheme.colorScheme.surface, onClick = { navHostController.navigate("read") }, onLongClick = { navHostController.navigate("detail") })
+                BookCard(msg = items[index], back = MaterialTheme.colorScheme.surface, onClick = { navHostController.navigate("read") }, onLongClick = { navHostController.navigate("detail?book=" + items[index].toString()) })
                 if (index < items.size - 1) {
                   Spacer(modifier = Modifier.height(12.dp))
                 }

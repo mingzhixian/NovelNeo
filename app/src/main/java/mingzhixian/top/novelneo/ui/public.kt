@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
@@ -96,24 +97,13 @@ fun NovelHost() {
     ) {
       SetBody(navHostController = navController)
     }
-    composable("detail",
+    composable("detail?book={book}",
       popEnterTransition = { slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(360)) },
       enterTransition = { slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(360)) },
       popExitTransition = { slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(360)) },
       exitTransition = { slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(360)) }
-    ) {
-      //todo 获取路由附加信息
-      val msg1 = JSONObject()
-      msg1.put("title", "圣古传奇之穿越后我变秃了，也变强了")
-      msg1.put("author", "北川")
-      msg1.put("cover", R.drawable.cover)
-      msg1.put("sort", "东方玄幻")
-      msg1.put("url", "https://www.exiaoshuo.com/xuanhuan/")
-      msg1.put("additional", "第1010章 大结局")
-      msg1.put("current", 0)
-      msg1.put("currentPage", 1)
-      msg1.put("status", 4)
-      DetailBody(navHostController = navController, msg1)
+    ) { backStackEntry ->
+      DetailBody(navHostController = navController, JSONObject(backStackEntry.arguments?.getString("book").toString()))
     }
     composable("read",
       popEnterTransition = { slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(360)) },
@@ -200,8 +190,8 @@ fun BookCard(msg: JSONObject, back: Color, onClick: () -> Unit, onLongClick: () 
     verticalAlignment = Alignment.CenterVertically
   ) {
     //封面
-    Image(
-      painter = painterResource(R.drawable.cover), //描述
+    AsyncImage(
+      model = msg.getString("cover"), //描述
       contentDescription = "封面",
       contentScale = ContentScale.Crop,
       modifier = Modifier
@@ -227,7 +217,7 @@ fun BookCard(msg: JSONObject, back: Color, onClick: () -> Unit, onLongClick: () 
       )
       //附加信息
       Text(
-        text = msg.getString("additional"),
+        text = msg.getString("latest"),
         style = MaterialTheme.typography.bodyMedium,
         overflow = TextOverflow.Ellipsis,
         maxLines = 3,

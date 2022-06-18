@@ -105,9 +105,9 @@ fun MainBody(navController: NavHostController) {
                 modifier = Modifier
                   .padding(6.dp, 4.dp, 0.dp, 12.dp)
               )
-              val  items = DB.getUpdateBooks()
+              val items = DB.getUpdateBooks()
               for (index in items.indices) {
-                BookCard(msg = items[index], back = MaterialTheme.colorScheme.surface, onClick = { navController.navigate("read") }, onLongClick = { navController.navigate("detail") })
+                BookCard(msg = items[index], back = MaterialTheme.colorScheme.surface, onClick = { navController.navigate("read") }, onLongClick = { navController.navigate("detail?book=" + items[index].toString()) })
                 if (index < items.size - 1) {
                   Spacer(modifier = Modifier.height(12.dp))
                 }

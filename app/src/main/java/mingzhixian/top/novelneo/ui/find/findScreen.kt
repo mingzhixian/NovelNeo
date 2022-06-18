@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import mingzhixian.top.novelneo.R
 import mingzhixian.top.novelneo.ui.BookItem
 import mingzhixian.top.novelneo.ui.NETWORK
@@ -65,7 +66,7 @@ fun FindBody(navController: NavHostController) {
           ) {
             for (i in 0..2) {
               Box(modifier = Modifier.weight(0.28f)){
-                ThreeCard(msg = mustReadBooks[i], onClick = {navController.navigate("detail")})
+                ThreeCard(msg = mustReadBooks[i], onClick = {navController.navigate("detail?book="+mustReadBooks[i].toString())})
               }
               if (i < 2) {
                 Spacer(modifier = Modifier.weight(0.08f))
@@ -79,7 +80,7 @@ fun FindBody(navController: NavHostController) {
         }
         //榜单
         itemsIndexed(mustReadBooks.slice(3 until mustReadBooks.size)) { index, msg ->
-          BookItem(msg = msg, onClick = {navController.navigate("detail")})
+          BookItem(msg = msg, onClick = {navController.navigate("detail?book=$msg")})
           if (index < mustReadBooks.size - 4) {
             Divider(
               thickness = 1.dp,
@@ -133,8 +134,8 @@ fun ThreeCard(msg: JSONObject, onClick: () -> Unit) {
     .fillMaxWidth()
   ) {
     //封面
-    Image(
-      painter = painterResource(id = msg.getInt("cover")),
+    AsyncImage(
+      model=msg.getString("cover"),
       contentDescription = "榜单前三",
       modifier = Modifier
         .fillMaxWidth()

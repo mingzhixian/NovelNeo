@@ -18,11 +18,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import mingzhixian.top.novelneo.R
 import mingzhixian.top.novelneo.ui.DB
 import mingzhixian.top.novelneo.ui.NETWORK
@@ -30,36 +29,22 @@ import mingzhixian.top.novelneo.ui.theme.NovelNeoTheme
 import org.json.JSONArray
 import org.json.JSONObject
 
-@Preview
-@Composable
-fun Pre1() {
-  val msg1 = JSONObject()
-  msg1.put("title", "圣古传奇之穿越后我变秃了，也变强了")
-  msg1.put("url", "https://www.exiaoshuo.com/xuanhuan/")
-  msg1.put("author", "北川")
-  msg1.put("sort", "东方玄幻")
-  msg1.put("cover", R.drawable.cover)
-  msg1.put("additional", "第1010章 大结局")
-  DetailBody(rememberNavController(), msg1)
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailBody(navHostController: NavHostController, msg: JSONObject) {
   NovelNeoTheme {
-    val detail = NETWORK.getDetails(msg = msg)
-    val menu = detail.getJSONArray("menu")
+    val menu = NETWORK.getMenu(msg)
     var isShowMenu by remember { mutableStateOf(false) }
-    msg.put("content",detail.getString("content"))
-    msg.put("menu",menu)
     Scaffold(
-      bottomBar = { if (!isShowMenu) DetailBottomBar(msg, { isShowMenu = !isShowMenu }, {}, {}) }
+      //todo 立即阅读界面
+      bottomBar = { if (!isShowMenu) DetailBottomBar(msg, { isShowMenu = !isShowMenu }, {}, { if (DB.isInBooks(msg = msg)) DB.deleteBook(msg = msg) else DB.newBook(msg = msg) }) }
     ) { innerPadding ->
       //上半部分
       Box(modifier = Modifier.padding(innerPadding)) {
         //顶部背景图片
-        Image(
-          painter = painterResource(msg.getInt("cover")),
+        AsyncImage(
+          //网络图片
+          model=msg.getString("cover"),
           contentDescription = "头图背景",
           contentScale = ContentScale.Crop,
           modifier = Modifier
@@ -79,8 +64,9 @@ fun DetailBody(navHostController: NavHostController, msg: JSONObject) {
         //封面及书名作者
         Row(modifier = Modifier.background(MaterialTheme.colorScheme.background.copy(0f))) {
           //封面
-          Image(
-            painter = painterResource(msg.getInt("cover")),
+          AsyncImage(
+            //网络图片
+            model=msg.getString("cover"),
             contentDescription = "封面",
             modifier = Modifier
               .padding(40.dp, 80.dp, 0.dp, 40.dp)
@@ -133,46 +119,50 @@ fun DetailBody(navHostController: NavHostController, msg: JSONObject) {
         }
       }
       //下半部分
-      Column(
+      LazyColumn(
         modifier = Modifier
           .padding(0.dp, 270.dp, 0.dp, 80.dp)
           .clip(shape = RoundedCornerShape(18.dp))
           .background(MaterialTheme.colorScheme.background),
         horizontalAlignment = Alignment.CenterHorizontally
       ) {
-        //详情
-        Text(
-          text = detail.getString("content"),
-          fontSize = 16.sp,
-          modifier = Modifier
-            .fillMaxWidth()
-            .padding(18.dp, 18.dp)
-        )
-        Row(
-          modifier = Modifier
-            .padding(20.dp, 16.dp)
-            .fillMaxWidth()
-            .height(36.dp)
-            .border(1.dp, MaterialTheme.colorScheme.outline, shape = RoundedCornerShape(12.dp))
-            .clickable { isShowMenu = !isShowMenu },
-          verticalAlignment = Alignment.CenterVertically
-        ) {
+        item {
+          //详情
           Text(
-            text = menu.getJSONObject(menu.length() - 1).getString("title"),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
+            text = msg.getString("content"),
             fontSize = 16.sp,
-            modifier = Modifier.padding(18.dp, 0.dp)
-          )
-          Spacer(modifier = Modifier.weight(1f))
-          Image(
-            painter = painterResource(R.drawable.next_thin),
-            contentDescription = "查看目录",
             modifier = Modifier
-              .padding(0.dp, 10.dp, 18.dp, 10.dp)
-              .fillMaxHeight()
-              .rotate(-90f)
+              .fillMaxWidth()
+              .padding(18.dp, 18.dp)
           )
+        }
+        item {
+          Row(
+            modifier = Modifier
+              .padding(20.dp, 16.dp)
+              .fillMaxWidth()
+              .height(36.dp)
+              .border(1.dp, MaterialTheme.colorScheme.outline, shape = RoundedCornerShape(12.dp))
+              .clickable { isShowMenu = !isShowMenu },
+            verticalAlignment = Alignment.CenterVertically
+          ) {
+            Text(
+              text = menu.getJSONObject(menu.length() - 1).getString("title"),
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis,
+              fontSize = 16.sp,
+              modifier = Modifier.padding(18.dp, 0.dp)
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            Image(
+              painter = painterResource(R.drawable.next_thin),
+              contentDescription = "查看目录",
+              modifier = Modifier
+                .padding(0.dp, 10.dp, 18.dp, 10.dp)
+                .fillMaxHeight()
+                .rotate(-90f)
+            )
+          }
         }
       }
       //目录

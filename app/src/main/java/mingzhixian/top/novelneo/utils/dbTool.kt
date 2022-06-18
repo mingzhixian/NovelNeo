@@ -19,15 +19,15 @@ class Book(
   @ColumnInfo var sort: String,
   //简介
   @ColumnInfo var content: String,
-  //目录
-  @ColumnInfo var menu: String,
   //书的网络地址
   @ColumnInfo var url: String,
   //当前阅读章
   @ColumnInfo var current: Int,
   //当前阅读章内页
   @ColumnInfo var currentPage: Int,
-  //状态（1为今日更新，2为未看完但今日未更新的，3为已看完最新章的）
+  //最新章节名
+  @ColumnInfo var latest: String,
+  //状态（1为今日更新，2为未看完但今日未更新的，3为已看完最新章的,4为未在书架的）
   @ColumnInfo var status: Int
 )
 
@@ -79,7 +79,7 @@ interface CountDao {
   fun update(day: Int, word: Int, hour: Int)
 }
 
-@Database(entities = [Book::class, Count::class], version = 1)
+@Database(entities = [Book::class, Count::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
   abstract fun booksDao(): BooksDao
   abstract fun countDao(): CountDao
@@ -127,23 +127,23 @@ class DbTool(context: Context) {
     books.forEach { item ->
       val msg1 = JSONObject()
       msg1.put("title", item.title)
-      msg1.put("cover", item.cover)
-      msg1.put("url", item.url)
       msg1.put("author", item.author)
+      msg1.put("cover", item.cover)
       msg1.put("sort", item.sort)
-      msg1.put("additional", JSONArray(item.menu).getJSONObject(JSONArray(item.menu).length() - 1).getString("title"))
-      msg1.put("status", item.status)
+      msg1.put("url", item.url)
       msg1.put("content", item.content)
       msg1.put("current", item.current)
       msg1.put("currentPage", item.currentPage)
+      msg1.put("latest", item.latest)
+      msg1.put("status", item.status)
       msgs.add(msg1)
     }
     return msgs
   }
   
   //新加一本书到书架
-  fun newBook(book: Book) {
-    booksDao.insertBook(book)
+  fun newBook(msg: JSONObject) {
+    booksDao.insertBook(Book(msg.getString("title"), msg.getString("author"), msg.getString("cover"), msg.getString("sort"), msg.getString("content"), msg.getString("url"), msg.getInt("current"), msg.getInt("currentPage"),msg.getString("latest"), msg.getInt("status")))
   }
   
   //书架移除一本书

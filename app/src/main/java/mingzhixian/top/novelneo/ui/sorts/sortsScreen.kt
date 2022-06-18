@@ -89,7 +89,7 @@ fun SortsBody(navController: NavHostController) {
           //列表
           val books = NETWORK.getSortBooks(sorts[selectSort])
           items(books) { book ->
-            BookCard(book, MaterialTheme.colorScheme.surfaceVariant, {navController.navigate("detail")}, {})
+            BookCard(book, MaterialTheme.colorScheme.surfaceVariant, {navController.navigate("detail?book=$book")}, {})
           }
           //底部空白
           item {
