@@ -3,7 +3,6 @@ package mingzhixian.top.novelneo.utils
 import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.util.Log
-import mingzhixian.top.novelneo.R
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONArray
@@ -14,20 +13,8 @@ import org.jsoup.select.Elements
 
 class NetworkTool {
   //联网获取书架书籍更新
-  fun getBooksUpdate(): ArrayList<JSONObject> {
+  fun getBooksUpdate() {
     //todo 对数据库操作
-    val msgs = ArrayList<JSONObject>()
-    for (i in 1..3) {
-      val msg1 = JSONObject()
-      msg1.put("title", "圣古传奇之穿越后我变秃了，也变强了")
-      msg1.put("cover", R.drawable.cover)
-      msg1.put("url", "https://www.exiaoshuo.com/xuanhuan/")
-      msg1.put("author", "北川")
-      msg1.put("sort", "东方玄幻")
-      msg1.put("additional", "第1010章 大结局")
-      msgs.add(msg1)
-    }
-    return msgs
   }
   
   //联网获取小说详情

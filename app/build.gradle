@@ -107,4 +107,5 @@ dependencies {
 
     implementation 'org.jsoup:jsoup:1.13.1'
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1"
+    implementation ("com.google.accompanist:accompanist-swiperefresh:0.18.0")
 }

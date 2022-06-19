@@ -11,15 +11,22 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import mingzhixian.top.novelneo.ui.BookCard
 import mingzhixian.top.novelneo.ui.NETWORK
 import mingzhixian.top.novelneo.ui.NovelNeoBar
@@ -27,34 +34,31 @@ import mingzhixian.top.novelneo.ui.theme.NovelNeoTheme
 import org.json.JSONObject
 import kotlin.concurrent.thread
 
+@Preview
+@Composable
+fun Pre() {
+  SortsBody(rememberNavController())
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SortsBody(navController: NavHostController) {
-  //所有分类
-  var sorts = ArrayList<JSONObject>()
+  //所有分类(本项目只有一个源，数量固定，所以不再从网络加载)
+  val sorts = listOf(
+    JSONObject("{\"name\":\"玄幻小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/xuanhuan\\/\"}"),
+    JSONObject("{\"name\":\"修真小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/xiuzhen\\/\"}"),
+    JSONObject("{\"name\":\"都市小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/dushi\\/\"}"),
+    JSONObject("{\"name\":\"历史小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/lishi\\/\"}"),
+    JSONObject("{\"name\":\"网游小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/wangyou\\/\"}"),
+    JSONObject("{\"name\":\"科幻小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/kehuan\\/\"}"),
+    JSONObject("{\"name\":\"言情小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/yanqing\\/\"}"),
+    JSONObject("{\"name\":\"其他小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/qita\\/\"}"),
+    JSONObject("{\"name\":\"全本小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/quanben\\/\"}")
+  )
   //列表
-  var books = rememberSaveable { mutableListOf(ArrayList<JSONObject>()) }
-  var selectSort by rememberSaveable  { mutableStateOf(0) }
-  //var reLoadSorts by remember { mutableStateOf(false) }
-  //协程获取分类(因为本项目只有一个源，此处分类是固定不变的，故不再使用协程)
-  sorts.add(JSONObject("{\"name\":\"玄幻小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/xuanhuan\\/\"}"))
-  sorts.add(JSONObject("{\"name\":\"修真小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/xiuzhen\\/\"}"))
-  sorts.add(JSONObject("{\"name\":\"都市小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/dushi\\/\"}"))
-  sorts.add(JSONObject("{\"name\":\"历史小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/lishi\\/\"}"))
-  sorts.add(JSONObject("{\"name\":\"网游小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/wangyou\\/\"}"))
-  sorts.add(JSONObject("{\"name\":\"科幻小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/kehuan\\/\"}"))
-  sorts.add(JSONObject("{\"name\":\"言情小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/yanqing\\/\"}"))
-  sorts.add(JSONObject("{\"name\":\"其他小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/qita\\/\"}"))
-  sorts.add(JSONObject("{\"name\":\"全本小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/quanben\\/\"}"))
-//  thread {
-//    sorts = NETWORK.getAllSorts()
-//    reLoadSorts = !reLoadSorts
-//    selectSort = 0
-//    thread {
-//      books = NETWORK.getSortBooks(sorts[selectSort])
-//      reLoadBooks = !reLoadBooks
-//    }
-//  }
+  val books = rememberSaveable { mutableListOf(ArrayList<JSONObject>(), ArrayList(), ArrayList(), ArrayList(), ArrayList(), ArrayList(), ArrayList(), ArrayList(), ArrayList()) }
+  var selectSort by rememberSaveable { mutableStateOf(-1) }
+  val isShowLoading = rememberSwipeRefreshState(false)
   NovelNeoTheme {
     Scaffold(
       //todo 添加搜索函数
@@ -74,8 +78,6 @@ fun SortsBody(navController: NavHostController) {
             .padding(8.dp, 12.dp),
           horizontalAlignment = Alignment.CenterHorizontally
         ) {
-          //如果加载完成则更新ui(暂停使用)
-//          if (reLoadSorts || !reLoadSorts) {
           itemsIndexed(sorts) { index, sort ->
             Box(
               modifier = Modifier
@@ -83,9 +85,12 @@ fun SortsBody(navController: NavHostController) {
                 .clip(shape = RoundedCornerShape(20.dp))
                 .clickable {
                   selectSort = index
-                  thread {
-                    books = NETWORK.getSortBooks(sorts[selectSort])
-                    reLoadBooks = !reLoadBooks
+                  if (books[selectSort].size == 0) {
+                    isShowLoading.isRefreshing = true
+                    thread {
+                      books[selectSort] = NETWORK.getSortBooks(sorts[selectSort])
+                      isShowLoading.isRefreshing = false
+                    }
                   }
                 }
                 .background(if (selectSort == index) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.surface)
@@ -102,24 +107,38 @@ fun SortsBody(navController: NavHostController) {
             }
           }
         }
-        //}
         //分类下图书排行榜
-        LazyColumn(
-          modifier = Modifier
-            .fillMaxHeight()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(18.dp, 20.dp),
-          verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-          //重新加载列表
-          if (reLoadBooks || !reLoadBooks) {
-            items(books) { book ->
-              BookCard(book, MaterialTheme.colorScheme.surfaceVariant, { navController.navigate("detail?book=$book") }, {})
-            }
+        SwipeRefresh(state = isShowLoading, onRefresh = {
+          thread {
+            books[selectSort] = NETWORK.getSortBooks(sorts[selectSort])
+            isShowLoading.isRefreshing = false
           }
-          //底部空白
-          item {
-            Spacer(modifier = Modifier.height(100.dp))
+        }, modifier = Modifier.weight(1f)) {
+          LazyColumn(
+            modifier = Modifier
+              .fillMaxWidth()
+              .fillMaxHeight()
+              .background(MaterialTheme.colorScheme.background)
+              .padding(18.dp, 20.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+          ) {
+            if (!isShowLoading.isRefreshing && selectSort == -1) {
+              isShowLoading.isRefreshing = true
+              thread {
+                books[0] = NETWORK.getSortBooks(sorts[0])
+                selectSort = 0
+                isShowLoading.isRefreshing = false
+              }
+            } else {
+              //列表
+              items(books[selectSort]) { book ->
+                BookCard(book, MaterialTheme.colorScheme.surfaceVariant, { navController.navigate("detail?book=$book") }, {})
+              }
+            }
+            //底部空白
+            item {
+              Spacer(modifier = Modifier.height(100.dp))
+            }
           }
         }
       }
