@@ -1,7 +1,5 @@
 package mingzhixian.top.novelneo.ui
 
-import android.content.ContentValues
-import android.util.Log
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
@@ -64,7 +62,6 @@ fun NovelHost() {
       popEnterTransition = { slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(360)) },
       exitTransition = { slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(360)) }
     ) {
-      Log.e(ContentValues.TAG, "main ")
       MainBody(navController = navController)
     }
     composable("find",
@@ -193,17 +190,31 @@ fun BookCard(msg: JSONObject, back: Color, onClick: () -> Unit, onLongClick: () 
     verticalAlignment = Alignment.CenterVertically
   ) {
     //封面
-    AsyncImage(
-      model = msg.getString("cover"), //描述
-      contentDescription = "封面",
-      contentScale = ContentScale.Crop,
-      modifier = Modifier
-        //大小
-        .height(80.dp)
-        .weight(0.2f)
-        .clip(RoundedCornerShape(12.dp)),
-      alignment = Alignment.Center,
-    )
+    if (msg.getString("cover") == "") {
+      Image(
+        painter = painterResource(R.drawable.cover),
+        contentDescription = "封面",
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+          //大小
+          .height(80.dp)
+          .weight(0.2f)
+          .clip(RoundedCornerShape(12.dp)),
+        alignment = Alignment.Center,
+      )
+    } else {
+      AsyncImage(
+        model = msg.getString("cover"), //描述
+        contentDescription = "封面",
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+          //大小
+          .height(80.dp)
+          .weight(0.2f)
+          .clip(RoundedCornerShape(12.dp)),
+        alignment = Alignment.Center,
+      )
+    }
     //文字
     Column(
       modifier = Modifier

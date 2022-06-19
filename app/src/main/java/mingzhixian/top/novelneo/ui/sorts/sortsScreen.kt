@@ -1,7 +1,5 @@
 package mingzhixian.top.novelneo.ui.sorts
 
-import android.content.ContentValues
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -14,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,24 +30,31 @@ import kotlin.concurrent.thread
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SortsBody(navController: NavHostController) {
-  Log.e(ContentValues.TAG, "SortsBody")
   //所有分类
   var sorts = ArrayList<JSONObject>()
   //列表
-  var books = ArrayList<JSONObject>()
-  var selectSort by remember { mutableStateOf(-1) }
-  var reLoadSorts by remember { mutableStateOf(false) }
-  var reLoadBooks by remember { mutableStateOf(false) }
-  //协程获取分类
-  thread {
-    sorts = NETWORK.getAllSorts()
-    reLoadSorts = !reLoadSorts
-    selectSort = 0
-    thread {
-      books = NETWORK.getSortBooks(sorts[selectSort])
-      reLoadBooks = !reLoadBooks
-    }
-  }
+  var books = rememberSaveable { mutableListOf(ArrayList<JSONObject>()) }
+  var selectSort by rememberSaveable  { mutableStateOf(0) }
+  //var reLoadSorts by remember { mutableStateOf(false) }
+  //协程获取分类(因为本项目只有一个源，此处分类是固定不变的，故不再使用协程)
+  sorts.add(JSONObject("{\"name\":\"玄幻小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/xuanhuan\\/\"}"))
+  sorts.add(JSONObject("{\"name\":\"修真小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/xiuzhen\\/\"}"))
+  sorts.add(JSONObject("{\"name\":\"都市小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/dushi\\/\"}"))
+  sorts.add(JSONObject("{\"name\":\"历史小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/lishi\\/\"}"))
+  sorts.add(JSONObject("{\"name\":\"网游小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/wangyou\\/\"}"))
+  sorts.add(JSONObject("{\"name\":\"科幻小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/kehuan\\/\"}"))
+  sorts.add(JSONObject("{\"name\":\"言情小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/yanqing\\/\"}"))
+  sorts.add(JSONObject("{\"name\":\"其他小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/qita\\/\"}"))
+  sorts.add(JSONObject("{\"name\":\"全本小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/quanben\\/\"}"))
+//  thread {
+//    sorts = NETWORK.getAllSorts()
+//    reLoadSorts = !reLoadSorts
+//    selectSort = 0
+//    thread {
+//      books = NETWORK.getSortBooks(sorts[selectSort])
+//      reLoadBooks = !reLoadBooks
+//    }
+//  }
   NovelNeoTheme {
     Scaffold(
       //todo 添加搜索函数
@@ -68,35 +74,35 @@ fun SortsBody(navController: NavHostController) {
             .padding(8.dp, 12.dp),
           horizontalAlignment = Alignment.CenterHorizontally
         ) {
-          //如果加载完成则更新ui
-          if (reLoadSorts || !reLoadSorts) {
-            itemsIndexed(sorts) { index, sort ->
-              Box(
+          //如果加载完成则更新ui(暂停使用)
+//          if (reLoadSorts || !reLoadSorts) {
+          itemsIndexed(sorts) { index, sort ->
+            Box(
+              modifier = Modifier
+                .fillMaxWidth()
+                .clip(shape = RoundedCornerShape(20.dp))
+                .clickable {
+                  selectSort = index
+                  thread {
+                    books = NETWORK.getSortBooks(sorts[selectSort])
+                    reLoadBooks = !reLoadBooks
+                  }
+                }
+                .background(if (selectSort == index) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.surface)
+            ) {
+              Text(
+                text = sort.getString("name"),
+                fontSize = 16.sp,
+                textAlign = TextAlign.Center,
+                color = (if (selectSort == index) MaterialTheme.colorScheme.onTertiary else MaterialTheme.colorScheme.onSurface),
                 modifier = Modifier
                   .fillMaxWidth()
-                  .clip(shape = RoundedCornerShape(20.dp))
-                  .clickable {
-                    selectSort = index
-                    thread {
-                      books = NETWORK.getSortBooks(sorts[selectSort])
-                      reLoadBooks = !reLoadBooks
-                    }
-                  }
-                  .background(if (selectSort == index) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.surface)
-              ) {
-                Text(
-                  text = sort.getString("name"),
-                  fontSize = 16.sp,
-                  textAlign = TextAlign.Center,
-                  color = (if (selectSort == index) MaterialTheme.colorScheme.onTertiary else MaterialTheme.colorScheme.onSurface),
-                  modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(0.dp, 8.dp),
-                )
-              }
+                  .padding(0.dp, 8.dp),
+              )
             }
           }
         }
+        //}
         //分类下图书排行榜
         LazyColumn(
           modifier = Modifier

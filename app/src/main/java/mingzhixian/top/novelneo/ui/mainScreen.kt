@@ -25,12 +25,6 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import mingzhixian.top.novelneo.R
 import mingzhixian.top.novelneo.ui.theme.NovelNeoTheme
 
-@Preview(showBackground = false, showSystemUi = false)
-@Composable
-fun Pre1() {
-  MainBody(navController = rememberNavController())
-}
-
 @SuppressLint("MutableCollectionMutableState")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
