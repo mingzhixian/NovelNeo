@@ -26,6 +26,7 @@ import mingzhixian.top.novelneo.ui.theme.NovelNeoTheme
 import org.json.JSONObject
 import kotlin.concurrent.thread
 
+
 @SuppressLint("MutableCollectionMutableState")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -39,9 +40,9 @@ fun MainBody(navController: NavHostController) {
       setNavigationBarColor(statusbarColor, !isSystemInDarkTheme())
     }
     //最近更新
-    val items = rememberSaveable { mutableListOf(ArrayList<JSONObject>()) }
+    val items = rememberSaveable { mutableListOf(listOf(JSONObject().toString())) }
     //获取数据库数据
-    val info = rememberSaveable { mutableListOf(JSONObject()) }
+    val info = rememberSaveable { mutableListOf(JSONObject().toString()) }
     //是否显示加载动画
     val isShowLoading = rememberSwipeRefreshState(false)
     SwipeRefresh(state = isShowLoading, onRefresh = {
@@ -96,7 +97,7 @@ fun MainBody(navController: NavHostController) {
           item {
             Spacer(modifier = Modifier.height(30.dp))
           }
-          if (!isShowLoading.isRefreshing && !info[0].has("month")) {
+          if (!isShowLoading.isRefreshing && !JSONObject(info[0]).has("month")) {
             isShowLoading.isRefreshing = true
             thread {
               NETWORK.getBooksUpdate()
@@ -125,7 +126,7 @@ fun MainBody(navController: NavHostController) {
                       .padding(6.dp, 4.dp, 0.dp, 12.dp)
                   )
                   for (index in items[0].indices) {
-                    BookCard(msg = items[0][index], back = MaterialTheme.colorScheme.surface, onClick = { navController.navigate("read") }, onLongClick = { navController.navigate("detail?book=" + items[index].toString()) })
+                    BookCard(msg = JSONObject(items[0][index]), back = MaterialTheme.colorScheme.surface, onClick = { navController.navigate("read") }, onLongClick = { navController.navigate("detail?book=" + items[index].toString()) })
                     if (index < items.size - 1) {
                       Spacer(modifier = Modifier.height(12.dp))
                     }
@@ -161,7 +162,7 @@ fun MainBody(navController: NavHostController) {
                       .clip(shape = RoundedCornerShape(12.dp))
                       .background(MaterialTheme.colorScheme.surface)
                   ) {
-                    val heatMap = info[0].getJSONArray("heatMap")
+                    val heatMap = JSONObject(info[0]).getJSONArray("heatMap")
                     Row(
                       modifier = Modifier
                         .padding(14.dp, 16.dp)
@@ -169,7 +170,7 @@ fun MainBody(navController: NavHostController) {
                     ) {
                       //月份
                       Column {
-                        Text(text = info[0].getInt("month").toString() + "月")
+                        Text(text = JSONObject(info[0]).getInt("month").toString() + "月")
                       }
                       //热力图
                       Column(
@@ -241,7 +242,7 @@ fun MainBody(navController: NavHostController) {
                           .padding(14.dp, 8.dp, 0.dp, 0.dp)
                       )
                       Text(
-                        text = formatNum(info[0].getInt("wordCount")) + "字",
+                        text = formatNum(JSONObject(info[0]).getInt("wordCount")) + "字",
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 22.sp,
                         textAlign = TextAlign.Center,
@@ -268,7 +269,7 @@ fun MainBody(navController: NavHostController) {
                           .padding(14.dp, 8.dp, 0.dp, 0.dp)
                       )
                       Text(
-                        text = formatNum(info[0].getInt("hourCount")) + "小时",
+                        text = formatNum(JSONObject(info[0]).getInt("hourCount")) + "小时",
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 22.sp,
                         overflow = TextOverflow.Ellipsis,

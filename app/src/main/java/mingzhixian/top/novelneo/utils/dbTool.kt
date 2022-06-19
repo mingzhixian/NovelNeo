@@ -106,24 +106,24 @@ class DbTool(context: Context) {
   private val countDao = instance.countDao()
   
   //获取数据库最新更新的所有书籍
-  fun getUpdateBooks(): ArrayList<JSONObject> {
+  fun getUpdateBooks(): ArrayList<String> {
     return getBooks(1)
   }
   
   //获取数据库所有暂无更新的书籍
-  fun getReadBooks(): ArrayList<JSONObject> {
+  fun getReadBooks(): ArrayList<String> {
     return getBooks(2)
   }
   
   //获取数据库所有已看完的书籍
-  fun getHaveReadBooks(): ArrayList<JSONObject> {
+  fun getHaveReadBooks(): ArrayList<String> {
     return getBooks(3)
   }
   
   //获取数据库书本信息
-  private fun getBooks(status: Int): ArrayList<JSONObject> {
+  private fun getBooks(status: Int): ArrayList<String> {
     val books = booksDao.getBooks(status = status)
-    val msgs = ArrayList<JSONObject>()
+    val msgs = ArrayList<String>()
     books.forEach { item ->
       val msg1 = JSONObject()
       msg1.put("title", item.title)
@@ -136,7 +136,7 @@ class DbTool(context: Context) {
       msg1.put("currentPage", item.currentPage)
       msg1.put("latest", item.latest)
       msg1.put("status", item.status)
-      msgs.add(msg1)
+      msgs.add(msg1.toString())
     }
     return msgs
   }
@@ -152,7 +152,7 @@ class DbTool(context: Context) {
   }
   
   //获取数据库本月阅读统计
-  fun getStatistics(): JSONObject {
+  fun getStatistics(): String {
     val count = countDao.getCounts()
     //新建json对象
     var wordCount = 0
@@ -174,7 +174,7 @@ class DbTool(context: Context) {
     info.put("wordCount", wordCount)
     info.put("hourCount", hourCount)
     info.put("heatMap", ary)
-    return info
+    return info.toString()
   }
   
   //更新当天的阅读统计

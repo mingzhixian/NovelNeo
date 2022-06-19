@@ -18,7 +18,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -35,22 +34,6 @@ import mingzhixian.top.novelneo.ui.set.SetBody
 import mingzhixian.top.novelneo.ui.sorts.SortsBody
 import mingzhixian.top.novelneo.ui.theme.NovelNeoTheme
 import org.json.JSONObject
-
-@Composable
-@Preview(showBackground = true, showSystemUi = false)
-fun Pre2() {
-  Column(
-    modifier = Modifier
-      .background(MaterialTheme.colorScheme.background)
-  ) {
-    val msg = JSONObject()
-    msg.put("title", "剑门第一仙")
-    msg.put("author", "北川")
-    msg.put("sort", "东方玄幻")
-    BookItem(msg, {})
-    Spacer(modifier = Modifier.height(30.dp))
-  }
-}
 
 //路由表
 @OptIn(ExperimentalAnimationApi::class)

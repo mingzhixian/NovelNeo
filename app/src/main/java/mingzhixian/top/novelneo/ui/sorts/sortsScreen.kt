@@ -56,7 +56,7 @@ fun SortsBody(navController: NavHostController) {
     JSONObject("{\"name\":\"全本小说\",\"url\":\"https:\\/\\/www.exiaoshuo.com\\/quanben\\/\"}")
   )
   //列表
-  val books = rememberSaveable { mutableListOf(ArrayList<JSONObject>(), ArrayList(), ArrayList(), ArrayList(), ArrayList(), ArrayList(), ArrayList(), ArrayList(), ArrayList()) }
+  val books = rememberSaveable { mutableListOf(listOf(JSONObject().toString()), listOf(JSONObject().toString()), listOf(JSONObject().toString()), listOf(JSONObject().toString()), listOf(JSONObject().toString()), listOf(JSONObject().toString()), listOf(JSONObject().toString()), listOf(JSONObject().toString()), listOf(JSONObject().toString())) }
   var selectSort by rememberSaveable { mutableStateOf(-1) }
   val isShowLoading = rememberSwipeRefreshState(false)
   NovelNeoTheme {
@@ -85,7 +85,7 @@ fun SortsBody(navController: NavHostController) {
                 .clip(shape = RoundedCornerShape(20.dp))
                 .clickable {
                   selectSort = index
-                  if (books[selectSort].size == 0) {
+                  if (books[selectSort].size == 1) {
                     isShowLoading.isRefreshing = true
                     thread {
                       books[selectSort] = NETWORK.getSortBooks(sorts[selectSort])
@@ -132,7 +132,7 @@ fun SortsBody(navController: NavHostController) {
             } else {
               //列表
               items(books[selectSort]) { book ->
-                BookCard(book, MaterialTheme.colorScheme.surfaceVariant, { navController.navigate("detail?book=$book") }, {})
+                BookCard(JSONObject(book), MaterialTheme.colorScheme.surfaceVariant, { navController.navigate("detail?book=$book") }, {})
               }
             }
             //底部空白

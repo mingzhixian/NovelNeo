@@ -33,17 +33,19 @@ import kotlin.concurrent.thread
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FindBody(navController: NavHostController) {
-  val mustReadBooks = rememberSaveable { mutableListOf(ArrayList<JSONObject>()) }
+  val mustReadBooks = rememberSaveable { mutableListOf(listOf(JSONObject().toString())) }
   val isShowLoading = rememberSwipeRefreshState(false)
   NovelNeoTheme {
     Scaffold(
       //todo 添加搜索函数
       topBar = { NovelNeoBar(isNeedBack = true, name = "发现", image = R.drawable.search, onClick = {}, navController = navController) }
     ) { innerPadding ->
-      SwipeRefresh(state = isShowLoading, onRefresh = { thread {
+      SwipeRefresh(state = isShowLoading, onRefresh = {
+        thread {
           mustReadBooks[0] = NETWORK.getMustReadBooks()
           isShowLoading.isRefreshing = false
-        } },modifier = Modifier.padding(innerPadding)) {
+        }
+      }, modifier = Modifier.padding(innerPadding)) {
         LazyColumn {
           //必读榜图片
           item {
@@ -57,7 +59,7 @@ fun FindBody(navController: NavHostController) {
             )
           }
           //网络加载
-          if (!isShowLoading.isRefreshing&&mustReadBooks[0].size == 0) {
+          if (!isShowLoading.isRefreshing && mustReadBooks[0].size == 1) {
             isShowLoading.isRefreshing = true
             thread {
               mustReadBooks[0] = NETWORK.getMustReadBooks()
@@ -72,7 +74,7 @@ fun FindBody(navController: NavHostController) {
               ) {
                 for (i in 0..2) {
                   Box(modifier = Modifier.weight(0.28f)) {
-                    ThreeCard(msg = mustReadBooks[0][i], onClick = { navController.navigate("detail?book=" + mustReadBooks[0][i].toString()) })
+                    ThreeCard(msg = JSONObject(mustReadBooks[0][i]), onClick = { navController.navigate("detail?book=" + mustReadBooks[0][i].toString()) })
                   }
                   if (i < 2) {
                     Spacer(modifier = Modifier.weight(0.08f))
@@ -86,7 +88,7 @@ fun FindBody(navController: NavHostController) {
             }
             //榜单
             itemsIndexed(mustReadBooks[0].slice(3 until mustReadBooks[0].size)) { index, msg ->
-              BookItem(msg = msg, onClick = { navController.navigate("detail?book=$msg") })
+              BookItem(msg = JSONObject(msg), onClick = { navController.navigate("detail?book=$msg") })
               if (index < mustReadBooks.size - 4) {
                 Divider(
                   thickness = 1.dp,

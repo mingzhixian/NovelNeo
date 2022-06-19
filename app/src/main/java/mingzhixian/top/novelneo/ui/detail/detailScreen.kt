@@ -8,10 +8,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -30,6 +28,7 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import mingzhixian.top.novelneo.R
 import mingzhixian.top.novelneo.ui.DB
 import mingzhixian.top.novelneo.ui.NETWORK
+import mingzhixian.top.novelneo.ui.NovelNeoBar
 import mingzhixian.top.novelneo.ui.theme.NovelNeoTheme
 import org.json.JSONArray
 import org.json.JSONObject
@@ -40,69 +39,67 @@ import kotlin.concurrent.thread
 fun DetailBody(navHostController: NavHostController, m: JSONObject) {
   NovelNeoTheme {
     val isShowLoading = rememberSwipeRefreshState(true)
-    val msg = rememberSaveable { mutableListOf(JSONObject()) }
+    val msg = remember { mutableListOf(m) }
     var isShowMenu by remember { mutableStateOf(false) }
     var isClickBooks by remember { mutableStateOf(false) }
-    SwipeRefresh(state = isShowLoading, onRefresh = {
-      thread {
-        msg[0] = NETWORK.getDetail(m)
-        isShowLoading.isRefreshing = false
+    
+    Scaffold(
+      topBar = { NovelNeoBar(isNeedBack = true, name = "详情", image = 0, onClick = {}, navController = navHostController) },
+      //todo 立即阅读界面
+      bottomBar = {
+        if (!isShowMenu) DetailBottomBar(msg[0], isClickBooks, { isShowMenu = !isShowMenu }, {}, {
+          isClickBooks = if (DB.isInBooks(msg = msg[0])) {
+            DB.deleteBook(msg = msg[0])
+            !isClickBooks
+          } else {
+            DB.newBook(msg = msg[0])
+            !isClickBooks
+          }
+        })
       }
-    }) {
-      if (isShowLoading.isRefreshing) {
+    ) { innerPadding ->
+      SwipeRefresh(state = isShowLoading, onRefresh = {
         thread {
           msg[0] = NETWORK.getDetail(m)
           isShowLoading.isRefreshing = false
         }
-      } else {
-        Scaffold(
-          //todo 立即阅读界面
-          bottomBar = {
-            if (!isShowMenu) DetailBottomBar(msg[0], isClickBooks, { isShowMenu = !isShowMenu }, {}, {
-              if (DB.isInBooks(msg = msg[0])) {
-                DB.deleteBook(msg = msg[0])
-                isClickBooks = !isClickBooks
-              } else {
-                DB.newBook(msg = msg[0])
-                isClickBooks = !isClickBooks
-              }
-            })
+      }, modifier = Modifier.padding(innerPadding)) {
+        if (isShowLoading.isRefreshing) {
+          thread {
+            msg[0] = NETWORK.getDetail(m)
+            isShowLoading.isRefreshing = false
           }
-        ) { innerPadding ->
+        } else {
           //上半部分
-          Box(modifier = Modifier.padding(innerPadding)) {
-            //顶部背景图片
-            AsyncImage(
-              //网络图片
-              model = ImageRequest.Builder(LocalContext.current)
-                .data(msg[0].getString("cover"))
-                .transformations(BlurTransformation(LocalContext.current))
-                .build(),
-              contentDescription = "头图背景",
-              contentScale = ContentScale.Crop,
-              modifier = Modifier
-                .height(280.dp)
-                .blur(20.dp)
-            )
-            //返回按钮
-            Image(
-              painter = painterResource(id = R.drawable.back),
-              contentDescription = "返回",
-              modifier = Modifier
-                //外边距
-                .padding(18.dp, 8.dp)
-                .size(30.dp)
-                .clickable { navHostController.navigateUp() }
-            )
+          Box {
+              AsyncImage(
+                //网络图片
+                model = ImageRequest.Builder(LocalContext.current)
+                  .data(msg[0].getString("cover"))
+                  .transformations(BlurTransformation(LocalContext.current))
+                  .build(),
+                contentDescription = "头图背景",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                  .height(240.dp)
+                  .padding(10.dp)
+                  .clip(shape = RoundedCornerShape(12.dp)),
+              )
             //封面及书名作者
-            Row(modifier = Modifier.background(MaterialTheme.colorScheme.background.copy(0f))) {
+            Row(
+              modifier = Modifier
+                .height(240.dp)
+                .padding(10.dp)
+                .clip(shape = RoundedCornerShape(12.dp))
+                .background(Color.DarkGray.copy(0.2f))
+            ) {
               //封面
               AsyncImage(
                 //网络图片
                 model = msg[0].getString("cover"),
                 contentDescription = "封面",
                 modifier = Modifier
-                  .padding(40.dp, 80.dp, 0.dp, 40.dp)
+                  .padding(40.dp, 40.dp, 0.dp, 40.dp)
                   .height(160.dp),
               )
               Column(
@@ -154,8 +151,7 @@ fun DetailBody(navHostController: NavHostController, m: JSONObject) {
           //下半部分
           LazyColumn(
             modifier = Modifier
-              .padding(0.dp, 276.dp, 0.dp, 80.dp)
-              .clip(shape = RoundedCornerShape(18.dp))
+              .padding(0.dp, 240.dp, 0.dp, 0.dp)
               .background(MaterialTheme.colorScheme.background),
             horizontalAlignment = Alignment.CenterHorizontally
           ) {
@@ -261,10 +257,12 @@ fun Menu(menu: JSONArray, onClick: () -> Unit) {
           .height(maxHeight - 150.dp)
           .padding(10.dp, 30.dp, 10.dp, 0.dp)
       ) {
-        item {
-          for (index in 0 until menu.length()) {
+        for (index in 0 until menu.length()) {
+          item {
             MenuItem(menu.getJSONObject(index))
-            if (index < menu.length() - 1) {
+          }
+          if (index < menu.length() - 1) {
+            item {
               Divider(
                 thickness = 1.dp,
                 modifier = Modifier.padding(20.dp, 0.dp),
