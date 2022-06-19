@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,44 +39,46 @@ import kotlin.concurrent.thread
 @Composable
 fun DetailBody(navHostController: NavHostController, m: JSONObject) {
   NovelNeoTheme {
-    val isShowLoading = rememberSwipeRefreshState(true)
-    val msg = remember { mutableListOf(m) }
-    var isShowMenu by remember { mutableStateOf(false) }
+    val isShowLoading = rememberSwipeRefreshState(false)
+    val msg = rememberSaveable { mutableListOf(m.toString()) }
+    var isShowMenu by rememberSaveable { mutableStateOf(false) }
     var isClickBooks by remember { mutableStateOf(false) }
-    
     Scaffold(
       topBar = { NovelNeoBar(isNeedBack = true, name = "详情", image = 0, onClick = {}, navController = navHostController) },
       //todo 立即阅读界面
       bottomBar = {
-        if (!isShowMenu) DetailBottomBar(msg[0], isClickBooks, { isShowMenu = !isShowMenu }, {}, {
-          isClickBooks = if (DB.isInBooks(msg = msg[0])) {
-            DB.deleteBook(msg = msg[0])
+        if (!isShowMenu) DetailBottomBar(JSONObject(msg[0]), isClickBooks, { isShowMenu = !isShowMenu }, {}, {
+          isClickBooks = if (DB.isInBooks(msg =JSONObject(msg[0]))) {
+            DB.deleteBook(msg = JSONObject(msg[0]))
             !isClickBooks
           } else {
-            DB.newBook(msg = msg[0])
+            DB.newBook(msg = JSONObject(msg[0]))
             !isClickBooks
           }
         })
       }
     ) { innerPadding ->
       SwipeRefresh(state = isShowLoading, onRefresh = {
+        isShowLoading.isRefreshing = true
         thread {
-          msg[0] = NETWORK.getDetail(m)
+          msg[0] = NETWORK.getDetail(m).toString()
           isShowLoading.isRefreshing = false
         }
       }, modifier = Modifier.padding(innerPadding)) {
-        if (isShowLoading.isRefreshing) {
+        if (!isShowLoading.isRefreshing&&JSONObject(msg[0]).getString("cover")=="") {
+          isShowLoading.isRefreshing = true
           thread {
-            msg[0] = NETWORK.getDetail(m)
+            msg[0] = NETWORK.getDetail(m).toString()
             isShowLoading.isRefreshing = false
           }
         } else {
+          val msgJson=JSONObject(msg[0])
           //上半部分
           Box {
               AsyncImage(
                 //网络图片
                 model = ImageRequest.Builder(LocalContext.current)
-                  .data(msg[0].getString("cover"))
+                  .data(msgJson.getString("cover"))
                   .transformations(BlurTransformation(LocalContext.current))
                   .build(),
                 contentDescription = "头图背景",
@@ -96,7 +99,7 @@ fun DetailBody(navHostController: NavHostController, m: JSONObject) {
               //封面
               AsyncImage(
                 //网络图片
-                model = msg[0].getString("cover"),
+                model = msgJson.getString("cover"),
                 contentDescription = "封面",
                 modifier = Modifier
                   .padding(40.dp, 40.dp, 0.dp, 40.dp)
@@ -110,7 +113,7 @@ fun DetailBody(navHostController: NavHostController, m: JSONObject) {
                 Spacer(modifier = Modifier.weight(1f))
                 //标题
                 Text(
-                  text = "《" + msg[0].getString("title") + "》",
+                  text = "《" + msgJson.getString("title") + "》",
                   color = Color.White,
                   overflow = TextOverflow.Ellipsis,
                   fontSize = 18.sp,
@@ -122,7 +125,7 @@ fun DetailBody(navHostController: NavHostController, m: JSONObject) {
                 )
                 //作者
                 Text(
-                  text = "作者:" + msg[0].getString("author"),
+                  text = "作者:" + msgJson.getString("author"),
                   color = Color.White.copy(alpha = 0.8f),
                   overflow = TextOverflow.Ellipsis,
                   fontSize = 16.sp,
@@ -134,7 +137,7 @@ fun DetailBody(navHostController: NavHostController, m: JSONObject) {
                 )
                 //类别
                 Text(
-                  text = msg[0].getString("sort"),
+                  text = msgJson.getString("sort"),
                   color = Color.White.copy(alpha = 0.6f),
                   overflow = TextOverflow.Ellipsis,
                   fontSize = 16.sp,
@@ -158,7 +161,7 @@ fun DetailBody(navHostController: NavHostController, m: JSONObject) {
             item {
               //详情
               Text(
-                text = msg[0].getString("content"),
+                text = msgJson.getString("content"),
                 fontSize = 16.sp,
                 modifier = Modifier
                   .fillMaxWidth()
@@ -167,7 +170,7 @@ fun DetailBody(navHostController: NavHostController, m: JSONObject) {
             }
           }
           //目录
-          if (isShowMenu) Menu(menu = msg[0].getJSONArray("menu")) { isShowMenu = !isShowMenu }
+          if (isShowMenu) Menu(menu = msgJson.getJSONArray("menu")) { isShowMenu = !isShowMenu }
         }
       }
     }

@@ -41,7 +41,6 @@ class NetworkTool {
     
     val msg1 = JSONArray()
     val menu = body.select("div[class=listmain] > dl > dd")
-    Log.e(TAG, "getDetail: ${menu.size}")
     for (i in menu.indices) {
       val element1 = menu[i]
       val msg2 = JSONObject()
