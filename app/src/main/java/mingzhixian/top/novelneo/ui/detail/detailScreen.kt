@@ -1,6 +1,5 @@
 package mingzhixian.top.novelneo.ui.detail
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -94,7 +93,7 @@ fun DetailBody(navHostController: NavHostController, m: JSONObject) {
                 .height(240.dp)
                 .padding(10.dp)
                 .clip(shape = RoundedCornerShape(12.dp))
-                .background(Color.DarkGray.copy(0.2f))
+                .background(Color.DarkGray.copy(0.4f))
             ) {
               //封面
               AsyncImage(
@@ -187,8 +186,9 @@ fun DetailBottomBar(msg: JSONObject, isClickBooks: Boolean, onClick1: () -> Unit
         .clickable(onClick = onClick1),
       horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-      Image(
+      Icon(
         painter = painterResource(R.drawable.menu),
+        tint = MaterialTheme.colorScheme.onBackground,
         contentDescription = "目录",
         modifier = Modifier.height(30.dp)
       )
@@ -203,8 +203,9 @@ fun DetailBottomBar(msg: JSONObject, isClickBooks: Boolean, onClick1: () -> Unit
         .clickable(onClick = onClick2),
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
-      Image(
+      Icon(
         painter = painterResource(R.drawable.read_now),
+        tint = MaterialTheme.colorScheme.onBackground,
         contentDescription = "阅读",
         modifier = Modifier.height(30.dp)
       )
@@ -219,8 +220,9 @@ fun DetailBottomBar(msg: JSONObject, isClickBooks: Boolean, onClick1: () -> Unit
         .clickable(onClick = onClick3),
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
-      Image(
+      Icon(
         painter = painterResource(R.drawable.books),
+        tint = MaterialTheme.colorScheme.onBackground,
         contentDescription = "书架",
         modifier = Modifier.height(30.dp)
       )
@@ -248,12 +250,13 @@ fun Menu(menu: JSONArray, onClick: () -> Unit) {
         .clip(shape = RoundedCornerShape(20.dp))
         .background(MaterialTheme.colorScheme.background)
     ) {
-      Image(
+      Icon(
+        tint = MaterialTheme.colorScheme.onBackground,
         painter = painterResource(R.drawable.pull_down), contentDescription = "返回", modifier = Modifier
           .fillMaxWidth()
           .height(40.dp)
-          .clickable(onClick = onClick),
-        alignment = Alignment.Center
+          .clickable(onClick = onClick)
+          .align(Alignment.TopCenter),
       )
       LazyColumn(
         modifier = Modifier
@@ -297,8 +300,9 @@ fun MenuItem(msg: JSONObject) {
       fontSize = 16.sp,
     )
     Spacer(modifier = Modifier.weight(1f))
-    Image(
+    Icon(
       painter = painterResource(R.drawable.next_thin),
+      tint = MaterialTheme.colorScheme.onBackground,
       contentDescription = "查看目录",
       modifier = Modifier
         .padding(0.dp, 4.dp, 0.dp, 4.dp)

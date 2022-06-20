@@ -7,6 +7,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.TopAppBar
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -117,8 +118,9 @@ fun NovelNeoBar(isNeedBack: Boolean, name: String, image: Int, onClick: () -> Un
         verticalAlignment = Alignment.CenterVertically,
       ) {
         if (isNeedBack) {
-          Image(
+          Icon(
             painter = painterResource(id = R.drawable.back),
+            tint = MaterialTheme.colorScheme.onBackground,
             contentDescription = "返回",
             modifier = Modifier
               .fillMaxHeight()
@@ -136,8 +138,9 @@ fun NovelNeoBar(isNeedBack: Boolean, name: String, image: Int, onClick: () -> Un
         )
         Spacer(modifier = Modifier.weight(1f))
         if (image != 0) {
-          Image(
+          Icon(
             painter = painterResource(id = image),
+            tint = MaterialTheme.colorScheme.onBackground,
             contentDescription = "设置或搜索",
             modifier = Modifier
               .fillMaxHeight()

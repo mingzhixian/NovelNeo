@@ -26,7 +26,6 @@ import mingzhixian.top.novelneo.ui.theme.NovelNeoTheme
 import org.json.JSONObject
 import kotlin.concurrent.thread
 
-
 @SuppressLint("MutableCollectionMutableState")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -47,6 +46,7 @@ fun MainBody(navController: NavHostController) {
     val isShowLoading = rememberSwipeRefreshState(false)
     SwipeRefresh(state = isShowLoading, onRefresh = {
       thread {
+        isShowLoading.isRefreshing = true
         NETWORK.getBooksUpdate()
         items[0] = DB.getUpdateBooks()
         info[0] = DB.getStatistics()
@@ -83,8 +83,9 @@ fun MainBody(navController: NavHostController) {
                     .padding(8.dp, 0.dp)
                 )
                 Spacer(modifier = Modifier.weight(1f))
-                Image(
+                Icon(
                   painter = painterResource(id = R.drawable.set),
+                  tint = MaterialTheme.colorScheme.onBackground,
                   contentDescription = "设置或搜索",
                   modifier = Modifier
                     .fillMaxHeight()
@@ -98,8 +99,8 @@ fun MainBody(navController: NavHostController) {
             Spacer(modifier = Modifier.height(30.dp))
           }
           if (!isShowLoading.isRefreshing && !JSONObject(info[0]).has("month")) {
-            isShowLoading.isRefreshing = true
             thread {
+              isShowLoading.isRefreshing = true
               NETWORK.getBooksUpdate()
               items[0] = DB.getUpdateBooks()
               info[0] = DB.getStatistics()

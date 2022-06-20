@@ -84,9 +84,9 @@ fun SortsBody(navController: NavHostController) {
                 .fillMaxWidth()
                 .clip(shape = RoundedCornerShape(20.dp))
                 .clickable {
+                  isShowLoading.isRefreshing = true
                   selectSort = index
                   if (books[selectSort].size == 1) {
-                    isShowLoading.isRefreshing = true
                     thread {
                       books[selectSort] = NETWORK.getSortBooks(sorts[selectSort])
                       isShowLoading.isRefreshing = false
@@ -109,6 +109,7 @@ fun SortsBody(navController: NavHostController) {
         }
         //分类下图书排行榜
         SwipeRefresh(state = isShowLoading, onRefresh = {
+          isShowLoading.isRefreshing = true
           thread {
             books[selectSort] = NETWORK.getSortBooks(sorts[selectSort])
             isShowLoading.isRefreshing = false
@@ -129,7 +130,7 @@ fun SortsBody(navController: NavHostController) {
                 selectSort = 0
                 isShowLoading.isRefreshing = false
               }
-            } else {
+            } else if(books[selectSort].size != 1) {
               //列表
               items(books[selectSort]) { book ->
                 BookCard(JSONObject(book), MaterialTheme.colorScheme.surfaceVariant, { navController.navigate("detail?book=$book") }, {})
