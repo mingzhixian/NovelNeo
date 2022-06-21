@@ -48,16 +48,19 @@ class NetworkTool {
       msg2.put("url", "https://www.exiaoshuo.com" + element1.select("a").attr("href"))
       msg1.put(msg2)
     }
-    msg.put("menu", msg1)
+    msg.put("menu", msg1.toString())
     msg.put("latest", msg1.getJSONObject(msg1.length() - 1).getString("title"))
     return msg
   }
   
   //联网获取小说内容,传入目录列表以及获取章节
-  fun getBody(msg: JSONArray, index: Int): String {
-    return "sasadafdsd"
+  fun getBody(msg: JSONObject): String {
+    val url = JSONArray(msg.getString("menu")).getJSONObject(msg.getInt("current")).getString("url")
+    val body = getDoc(url)!!.select("div[id=content]").get(0).text()
+    Log.e(TAG, "getBody: $body", )
+    return body
   }
-  
+
 //  //联网获取所有分类
 //  @SuppressLint("RestrictedApi")
 //  fun getAllSorts(): ArrayList<JSONObject> {
@@ -145,17 +148,43 @@ class NetworkTool {
     return msgs
   }
   
+  //联网获取搜索结果
+  fun getNetworkSearchBooks(msg: String): ArrayList<String> {
+    val rootUrl = "https://www.exiaoshuo.com"
+    val url = "https://www.exiaoshuo.com/iudshgirdsuhgiurdshi.php?ie=gbk&q=$msg"
+    val lis: Elements? = getDoc(url)?.select("div[class=bookbox]")
+    val msgs = ArrayList<String>()
+    if (lis != null) {
+      for (index in lis.indices) {
+        val element = lis[index]
+        val msg1 = JSONObject()
+        msg1.put("title", element.select("div[class=bookinfo] > h4[class=bookname] > a").text())
+        msg1.put("author", element.select("div[class=bookinfo] > div[class=author]").text())
+        msg1.put("cover", rootUrl + element.select("div[class=bookimg] > a > img").attr("src"))
+        msg1.put("sort", element.select("div[class=bookinfo] > div[class=cat]").text())
+        msg1.put("content", element.select("div[class=bookinfo] > p").text())
+        msg1.put("url", rootUrl + element.select("div[class=bookimg] > a").attr("href"))
+        msg1.put("current", 0)
+        msg1.put("currentPage", 0)
+        msg1.put("latest", element.select("div[class=bookinfo] > div[class=update] > a").text())
+        msg1.put("status", 4)
+        msgs.add(msg1.toString())
+      }
+    }
+    return msgs
+  }
+  
   //网络请求
   private fun getDoc(url: String): Document? {
     val request: Request = requestBuilder.url(url = url).build()
-    var str=""
-    for (i in 1..3){
+    var str = ""
+    for (i in 1..3) {
       try {
         val response = okHttpClient.newCall(request).execute()
         str = response.body!!.string()
         response.body!!.close()
         break
-      }catch (t: Throwable) {
+      } catch (t: Throwable) {
         Log.e(TAG, "getDoc: when requesting $url", t)
       }
     }

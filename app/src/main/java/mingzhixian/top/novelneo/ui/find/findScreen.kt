@@ -37,8 +37,7 @@ fun FindBody(navController: NavHostController) {
   val isShowLoading = rememberSwipeRefreshState(false)
   NovelNeoTheme {
     Scaffold(
-      //todo 添加搜索函数
-      topBar = { NovelNeoBar(isNeedBack = true, name = "发现", image = R.drawable.search, onClick = {}, navController = navController) }
+      topBar = { NovelNeoBar(isNeedBack = true, name = "发现", image = R.drawable.search, onClick = {navController.navigate("search")}, navController = navController) }
     ) { innerPadding ->
       SwipeRefresh(state = isShowLoading, onRefresh = {
         thread {

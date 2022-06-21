@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "dd1426668826f07def06ab64fb9f5162",
+    "identityHash": "8d672e6a9311661528187fa5a37cfa6e",
     "entities": [
       {
         "tableName": "books",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`title` TEXT NOT NULL, `author` TEXT NOT NULL, `cover` TEXT NOT NULL, `sort` TEXT NOT NULL, `content` TEXT NOT NULL, `url` TEXT NOT NULL, `current` INTEGER NOT NULL, `currentPage` INTEGER NOT NULL, `latest` TEXT NOT NULL, `status` INTEGER NOT NULL, PRIMARY KEY(`title`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`title` TEXT NOT NULL, `author` TEXT NOT NULL, `cover` TEXT NOT NULL, `sort` TEXT NOT NULL, `content` TEXT NOT NULL, `url` TEXT NOT NULL, `current` INTEGER NOT NULL, `currentPage` INTEGER NOT NULL, `status` INTEGER NOT NULL, `latest` TEXT NOT NULL, `menu` TEXT NOT NULL, PRIMARY KEY(`title`))",
         "fields": [
           {
             "fieldPath": "title",
@@ -57,15 +57,21 @@
             "notNull": true
           },
           {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "latest",
             "columnName": "latest",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "status",
-            "columnName": "status",
-            "affinity": "INTEGER",
+            "fieldPath": "menu",
+            "columnName": "menu",
+            "affinity": "TEXT",
             "notNull": true
           }
         ],
@@ -120,7 +126,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dd1426668826f07def06ab64fb9f5162')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8d672e6a9311661528187fa5a37cfa6e')"
     ]
   }
 }

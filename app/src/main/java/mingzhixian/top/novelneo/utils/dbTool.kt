@@ -25,15 +25,16 @@ class Book(
   @ColumnInfo var current: Int,
   //当前阅读章内页
   @ColumnInfo var currentPage: Int,
+  //状态（1为今日更新，2为未看完但今日未更新的，3为已看完最新章的,4为未在书架的）
+  @ColumnInfo var status: Int,
   //最新章节名
   @ColumnInfo var latest: String,
-  //状态（1为今日更新，2为未看完但今日未更新的，3为已看完最新章的,4为未在书架的）
-  @ColumnInfo var status: Int
+  //目录
+  @ColumnInfo var menu: String,
 )
 
 @Dao
 interface BooksDao {
-  
   //获取书架所有书
   @Query("select * from books where status=:status")
   fun getBooks(status: Int): List<Book>
@@ -134,8 +135,9 @@ class DbTool(context: Context) {
       msg1.put("content", item.content)
       msg1.put("current", item.current)
       msg1.put("currentPage", item.currentPage)
-      msg1.put("latest", item.latest)
       msg1.put("status", item.status)
+      msg1.put("latest", item.latest)
+      msg1.put("menu", item.menu)
       msgs.add(msg1.toString())
     }
     return msgs
@@ -143,7 +145,7 @@ class DbTool(context: Context) {
   
   //新加一本书到书架
   fun newBook(msg: JSONObject) {
-    booksDao.insertBook(Book(msg.getString("title"), msg.getString("author"), msg.getString("cover"), msg.getString("sort"), msg.getString("content"), msg.getString("url"), msg.getInt("current"), msg.getInt("currentPage"),msg.getString("latest"), 2))
+    booksDao.insertBook(Book(msg.getString("title"), msg.getString("author"), msg.getString("cover"), msg.getString("sort"), msg.getString("content"), msg.getString("url"), msg.getInt("current"), msg.getInt("currentPage"), 2, msg.getString("latest"), msg.getString("menu")))
   }
   
   //书架移除一本书

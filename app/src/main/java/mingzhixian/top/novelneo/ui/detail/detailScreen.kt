@@ -44,10 +44,9 @@ fun DetailBody(navHostController: NavHostController, m: JSONObject) {
     var isClickBooks by remember { mutableStateOf(false) }
     Scaffold(
       topBar = { NovelNeoBar(isNeedBack = true, name = "详情", image = 0, onClick = {}, navController = navHostController) },
-      //todo 立即阅读界面
       bottomBar = {
-        if (!isShowMenu) DetailBottomBar(JSONObject(msg[0]), isClickBooks, { isShowMenu = !isShowMenu }, {}, {
-          isClickBooks = if (DB.isInBooks(msg =JSONObject(msg[0]))) {
+        if (!isShowMenu) DetailBottomBar(JSONObject(msg[0]), isClickBooks, { isShowMenu = !isShowMenu }, { navHostController.navigate("read?book=" + msg[0]) }, {
+          isClickBooks = if (DB.isInBooks(msg = JSONObject(msg[0]))) {
             DB.deleteBook(msg = JSONObject(msg[0]))
             !isClickBooks
           } else {
@@ -64,29 +63,29 @@ fun DetailBody(navHostController: NavHostController, m: JSONObject) {
           isShowLoading.isRefreshing = false
         }
       }, modifier = Modifier.padding(innerPadding)) {
-        if (!isShowLoading.isRefreshing&&JSONObject(msg[0]).getString("cover")=="") {
+        if (!isShowLoading.isRefreshing && JSONObject(msg[0]).getString("cover") == "") {
           isShowLoading.isRefreshing = true
           thread {
             msg[0] = NETWORK.getDetail(m).toString()
             isShowLoading.isRefreshing = false
           }
         } else {
-          val msgJson=JSONObject(msg[0])
+          val msgJson = JSONObject(msg[0])
           //上半部分
           Box {
-              AsyncImage(
-                //网络图片
-                model = ImageRequest.Builder(LocalContext.current)
-                  .data(msgJson.getString("cover"))
-                  .transformations(BlurTransformation(LocalContext.current))
-                  .build(),
-                contentDescription = "头图背景",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                  .height(240.dp)
-                  .padding(10.dp)
-                  .clip(shape = RoundedCornerShape(12.dp)),
-              )
+            AsyncImage(
+              //网络图片
+              model = ImageRequest.Builder(LocalContext.current)
+                .data(msgJson.getString("cover"))
+                .transformations(BlurTransformation(LocalContext.current))
+                .build(),
+              contentDescription = "头图背景",
+              contentScale = ContentScale.Crop,
+              modifier = Modifier
+                .height(240.dp)
+                .padding(10.dp)
+                .clip(shape = RoundedCornerShape(12.dp)),
+            )
             //封面及书名作者
             Row(
               modifier = Modifier
@@ -101,7 +100,7 @@ fun DetailBody(navHostController: NavHostController, m: JSONObject) {
                 model = msgJson.getString("cover"),
                 contentDescription = "封面",
                 modifier = Modifier
-                  .padding(40.dp, 40.dp, 0.dp, 40.dp)
+                  .padding(28.dp, 40.dp, 0.dp, 40.dp)
                   .height(160.dp),
               )
               Column(
@@ -169,7 +168,7 @@ fun DetailBody(navHostController: NavHostController, m: JSONObject) {
             }
           }
           //目录
-          if (isShowMenu) Menu(menu = msgJson.getJSONArray("menu")) { isShowMenu = !isShowMenu }
+          if (isShowMenu) Menu(menu = JSONArray(msgJson.getString("menu"))) { isShowMenu = !isShowMenu }
         }
       }
     }
@@ -252,7 +251,8 @@ fun Menu(menu: JSONArray, onClick: () -> Unit) {
     ) {
       Icon(
         tint = MaterialTheme.colorScheme.onBackground,
-        painter = painterResource(R.drawable.pull_down), contentDescription = "返回", modifier = Modifier
+        painter = painterResource(R.drawable.pull_down), contentDescription = "返回",
+        modifier = Modifier
           .fillMaxWidth()
           .height(40.dp)
           .clickable(onClick = onClick)

@@ -61,8 +61,7 @@ fun SortsBody(navController: NavHostController) {
   val isShowLoading = rememberSwipeRefreshState(false)
   NovelNeoTheme {
     Scaffold(
-      //todo 添加搜索函数
-      topBar = { NovelNeoBar(isNeedBack = true, name = "分类", image = mingzhixian.top.novelneo.R.drawable.search, onClick = {}, navController = navController) }
+      topBar = { NovelNeoBar(isNeedBack = true, name = "分类", image = mingzhixian.top.novelneo.R.drawable.search, onClick = {navController.navigate("search")}, navController = navController) }
     ) { innerPadding ->
       Row(modifier = Modifier.padding(innerPadding)) {
         //所有分类

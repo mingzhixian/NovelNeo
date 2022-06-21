@@ -31,6 +31,7 @@ import mingzhixian.top.novelneo.ui.books.BooksBody
 import mingzhixian.top.novelneo.ui.detail.DetailBody
 import mingzhixian.top.novelneo.ui.find.FindBody
 import mingzhixian.top.novelneo.ui.read.ReadBody
+import mingzhixian.top.novelneo.ui.search.SearchBody
 import mingzhixian.top.novelneo.ui.set.SetBody
 import mingzhixian.top.novelneo.ui.sorts.SortsBody
 import mingzhixian.top.novelneo.ui.theme.NovelNeoTheme
@@ -89,13 +90,21 @@ fun NovelHost() {
     ) { backStackEntry ->
       DetailBody(navHostController = navController, JSONObject(backStackEntry.arguments?.getString("book").toString()))
     }
-    composable("read",
+    composable("read?book={book}",
+      popEnterTransition = { slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(360)) },
+      enterTransition = { slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(360)) },
+      popExitTransition = { slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(360)) },
+      exitTransition = { slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(360)) }
+    ) { backStackEntry ->
+      ReadBody(navHostController = navController, JSONObject(backStackEntry.arguments?.getString("book").toString()))
+    }
+    composable("search",
       popEnterTransition = { slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(360)) },
       enterTransition = { slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(360)) },
       popExitTransition = { slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(360)) },
       exitTransition = { slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(360)) }
     ) {
-      ReadBody(navHostController = navController)
+      SearchBody(navController = navController)
     }
   }
 }

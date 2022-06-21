@@ -85,9 +85,9 @@ fun BooksBody(navHostController: NavHostController) {
                   .padding(10.dp, 12.dp)
               ) {
                 val items = items1[0]
-                if(!isShowLoading.isRefreshing){
+                if (!isShowLoading.isRefreshing) {
                   for (index in items.indices) {
-                    BookCard(msg = JSONObject(items[index]), back = MaterialTheme.colorScheme.surface, onClick = { navHostController.navigate("read") }, onLongClick = { navHostController.navigate("detail?book=" + items[index]) })
+                    BookCard(msg = JSONObject(items[index]), back = MaterialTheme.colorScheme.surface, onClick = { navHostController.navigate("read?book=" + items[index]) }, onLongClick = { navHostController.navigate("detail?book=" + items[index]) })
                     if (index < items.size - 1) {
                       Spacer(modifier = Modifier.height(12.dp))
                     }
@@ -116,9 +116,9 @@ fun BooksBody(navHostController: NavHostController) {
                   .padding(10.dp, 12.dp)
               ) {
                 val items = items2[0]
-                if (!isShowLoading.isRefreshing){
+                if (!isShowLoading.isRefreshing) {
                   for (index in items.indices) {
-                    BookCard(msg = JSONObject(items[index]), back = MaterialTheme.colorScheme.surface, onClick = { navHostController.navigate("read") }, onLongClick = { navHostController.navigate("detail?book=" + items[index]) })
+                    BookCard(msg = JSONObject(items[index]), back = MaterialTheme.colorScheme.surface, onClick = { navHostController.navigate("read?book=" + items[index]) }, onLongClick = { navHostController.navigate("detail?book=" + items[index]) })
                     if (index < items.size - 1) {
                       Spacer(modifier = Modifier.height(12.dp))
                     }
@@ -147,9 +147,9 @@ fun BooksBody(navHostController: NavHostController) {
                   .padding(10.dp, 12.dp)
               ) {
                 val items = items3[0]
-                if (!isShowLoading.isRefreshing){
+                if (!isShowLoading.isRefreshing) {
                   for (index in items.indices) {
-                    BookCard(msg = JSONObject(items[index]), back = MaterialTheme.colorScheme.surface, onClick = { navHostController.navigate("read") }, onLongClick = { navHostController.navigate("detail?book=" + items[index]) })
+                    BookCard(msg = JSONObject(items[index]), back = MaterialTheme.colorScheme.surface, onClick = { navHostController.navigate("read?book=" + items[index]) }, onLongClick = { navHostController.navigate("detail?book=" + items[index]) })
                     if (index < items.size - 1) {
                       Spacer(modifier = Modifier.height(12.dp))
                     }
