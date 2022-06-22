@@ -5,8 +5,8 @@ import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import mingzhixian.top.novelneo.ui.NETWORK
 import mingzhixian.top.novelneo.ui.getAppContext
 import org.json.JSONObject
 import kotlin.concurrent.thread
@@ -51,18 +50,34 @@ fun ReadBody(navHostController: NavHostController, msg: JSONObject) {
     var item2 = rememberSaveable { mutableStateOf(wait) }
     var item3 = rememberSaveable { mutableStateOf(wait) }
     thread {
-      item1.value = NETWORK.getBody(msg = msg)
+      //item1.value = NETWORK.getBody(msg = msg)
     }
-    LazyColumn(
+    Box(
       modifier = Modifier
         .fillMaxSize()
         .background(background)
     ) {
-      item {
-        Text(
-          text = item1.value
-        )
-      }
+      Text(
+        text = item1.value
+      )
+    }
+    Box(
+      modifier = Modifier
+        .fillMaxSize()
+        .background(background)
+    ) {
+      Text(
+        text = item2.value
+      )
+    }
+    Box(
+      modifier = Modifier
+        .fillMaxSize()
+        .background(background)
+    ) {
+      Text(
+        text = item3.value
+      )
     }
   }
 }

@@ -48,7 +48,7 @@ class NetworkTool {
       msg2.put("url", "https://www.exiaoshuo.com" + element1.select("a").attr("href"))
       msg1.put(msg2)
     }
-    msg.put("menu", msg1.toString())
+    msg.put("menu", msg1)
     msg.put("latest", msg1.getJSONObject(msg1.length() - 1).getString("title"))
     return msg
   }

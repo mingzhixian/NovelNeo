@@ -127,7 +127,13 @@ fun MainBody(navController: NavHostController) {
                       .padding(6.dp, 4.dp, 0.dp, 12.dp)
                   )
                   for (index in items[0].indices) {
-                    BookCard(msg = JSONObject(items[0][index]), back = MaterialTheme.colorScheme.surface, onClick = { navController.navigate("read") }, onLongClick = { navController.navigate("detail?book=" + items[index].toString()) })
+                    BookCard(msg = JSONObject(items[0][index]), back = MaterialTheme.colorScheme.surface, onClick = {
+                      DATA.setDataBook(JSONObject(items[0][index]))
+                      navController.navigate("read")
+                                                                                                                    }, onLongClick = {
+                      DATA.setDataBook(JSONObject(items[0][index]))
+                      navController.navigate("detail")
+                                                                                                                    })
                     if (index < items.size - 1) {
                       Spacer(modifier = Modifier.height(12.dp))
                     }

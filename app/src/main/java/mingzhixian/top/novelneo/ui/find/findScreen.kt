@@ -24,6 +24,7 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import mingzhixian.top.novelneo.R
 import mingzhixian.top.novelneo.ui.BookItem
+import mingzhixian.top.novelneo.ui.DATA
 import mingzhixian.top.novelneo.ui.NETWORK
 import mingzhixian.top.novelneo.ui.NovelNeoBar
 import mingzhixian.top.novelneo.ui.theme.NovelNeoTheme
@@ -73,7 +74,9 @@ fun FindBody(navController: NavHostController) {
               ) {
                 for (i in 0..2) {
                   Box(modifier = Modifier.weight(0.28f)) {
-                    ThreeCard(msg = JSONObject(mustReadBooks[0][i]), onClick = { navController.navigate("detail?book=" + mustReadBooks[0][i].toString()) })
+                    ThreeCard(msg = JSONObject(mustReadBooks[0][i]), onClick = {
+                      DATA.setDataBook(JSONObject(mustReadBooks[0][i]))
+                      navController.navigate("detail")})
                   }
                   if (i < 2) {
                     Spacer(modifier = Modifier.weight(0.08f))
@@ -87,7 +90,9 @@ fun FindBody(navController: NavHostController) {
             }
             //榜单
             itemsIndexed(mustReadBooks[0].slice(3 until mustReadBooks[0].size)) { index, msg ->
-              BookItem(msg = JSONObject(msg), onClick = { navController.navigate("detail?book=$msg") })
+              BookItem(msg = JSONObject(msg), onClick = {
+                DATA.setDataBook(JSONObject(msg))
+                navController.navigate("detail") })
               if (index < mustReadBooks.size - 4) {
                 Divider(
                   thickness = 1.dp,

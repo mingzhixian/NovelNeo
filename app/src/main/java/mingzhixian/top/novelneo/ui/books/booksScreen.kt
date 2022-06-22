@@ -17,11 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import mingzhixian.top.novelneo.R
-import mingzhixian.top.novelneo.ui.BookCard
-import mingzhixian.top.novelneo.ui.DB
-import mingzhixian.top.novelneo.ui.NETWORK
-import mingzhixian.top.novelneo.ui.NovelNeoBar
+import mingzhixian.top.novelneo.ui.*
 import mingzhixian.top.novelneo.ui.theme.NovelNeoTheme
 import org.json.JSONObject
 import kotlin.concurrent.thread
@@ -44,7 +40,7 @@ fun BooksBody(navHostController: NavHostController) {
   items3[0] = DB.getHaveReadBooks()
   NovelNeoTheme {
     Scaffold(
-      topBar = { NovelNeoBar(isNeedBack = true, name = "书架", image = R.drawable.search, onClick = {}, navController = navHostController) }
+      topBar = { NovelNeoBar(isNeedBack = true, name = "书架", image = 0, onClick = {}, navController = navHostController) }
     ) { innerPadding ->
       SwipeRefresh(state = isShowLoading, onRefresh = {
         thread {
@@ -87,7 +83,13 @@ fun BooksBody(navHostController: NavHostController) {
                 val items = items1[0]
                 if (!isShowLoading.isRefreshing) {
                   for (index in items.indices) {
-                    BookCard(msg = JSONObject(items[index]), back = MaterialTheme.colorScheme.surface, onClick = { navHostController.navigate("read?book=" + items[index]) }, onLongClick = { navHostController.navigate("detail?book=" + items[index]) })
+                    BookCard(msg = JSONObject(items[index]), back = MaterialTheme.colorScheme.surface, onClick = {
+                      DATA.setDataBook(JSONObject(items[index]))
+                      navHostController.navigate("read")
+                    }, onLongClick = {
+                      DATA.setDataBook(JSONObject(items[index]))
+                      navHostController.navigate("detail")
+                    })
                     if (index < items.size - 1) {
                       Spacer(modifier = Modifier.height(12.dp))
                     }
@@ -118,7 +120,13 @@ fun BooksBody(navHostController: NavHostController) {
                 val items = items2[0]
                 if (!isShowLoading.isRefreshing) {
                   for (index in items.indices) {
-                    BookCard(msg = JSONObject(items[index]), back = MaterialTheme.colorScheme.surface, onClick = { navHostController.navigate("read?book=" + items[index]) }, onLongClick = { navHostController.navigate("detail?book=" + items[index]) })
+                    BookCard(msg = JSONObject(items[index]), back = MaterialTheme.colorScheme.surface, onClick = {
+                      DATA.setDataBook(JSONObject(items[index]))
+                      navHostController.navigate("read")
+                    }, onLongClick = {
+                      DATA.setDataBook(JSONObject(items[index]))
+                      navHostController.navigate("detail")
+                    })
                     if (index < items.size - 1) {
                       Spacer(modifier = Modifier.height(12.dp))
                     }
@@ -149,7 +157,13 @@ fun BooksBody(navHostController: NavHostController) {
                 val items = items3[0]
                 if (!isShowLoading.isRefreshing) {
                   for (index in items.indices) {
-                    BookCard(msg = JSONObject(items[index]), back = MaterialTheme.colorScheme.surface, onClick = { navHostController.navigate("read?book=" + items[index]) }, onLongClick = { navHostController.navigate("detail?book=" + items[index]) })
+                    BookCard(msg = JSONObject(items[index]), back = MaterialTheme.colorScheme.surface, onClick = {
+                      DATA.setDataBook(JSONObject(items[index]))
+                      navHostController.navigate("read")
+                    }, onLongClick = {
+                      DATA.setDataBook(JSONObject(items[index]))
+                      navHostController.navigate("detail")
+                    })
                     if (index < items.size - 1) {
                       Spacer(modifier = Modifier.height(12.dp))
                     }

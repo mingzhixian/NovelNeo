@@ -82,21 +82,21 @@ fun NovelHost() {
     ) {
       SetBody(navHostController = navController)
     }
-    composable("detail?book={book}",
+    composable("detail",
       popEnterTransition = { slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(360)) },
       enterTransition = { slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(360)) },
       popExitTransition = { slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(360)) },
       exitTransition = { slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(360)) }
-    ) { backStackEntry ->
-      DetailBody(navHostController = navController, JSONObject(backStackEntry.arguments?.getString("book").toString()))
+    ) {
+      DetailBody(navHostController = navController, DATA.getDataBook())
     }
-    composable("read?book={book}",
+    composable("read",
       popEnterTransition = { slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(360)) },
       enterTransition = { slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(360)) },
       popExitTransition = { slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(360)) },
       exitTransition = { slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(360)) }
-    ) { backStackEntry ->
-      ReadBody(navHostController = navController, JSONObject(backStackEntry.arguments?.getString("book").toString()))
+    ) {
+      ReadBody(navHostController = navController, DATA.getDataBook())
     }
     composable("search",
       popEnterTransition = { slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(360)) },

@@ -26,6 +26,7 @@ import coil.transform.BlurTransformation
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import mingzhixian.top.novelneo.R
+import mingzhixian.top.novelneo.ui.DATA
 import mingzhixian.top.novelneo.ui.DB
 import mingzhixian.top.novelneo.ui.NETWORK
 import mingzhixian.top.novelneo.ui.NovelNeoBar
@@ -45,7 +46,10 @@ fun DetailBody(navHostController: NavHostController, m: JSONObject) {
     Scaffold(
       topBar = { NovelNeoBar(isNeedBack = true, name = "详情", image = 0, onClick = {}, navController = navHostController) },
       bottomBar = {
-        if (!isShowMenu) DetailBottomBar(JSONObject(msg[0]), isClickBooks, { isShowMenu = !isShowMenu }, { navHostController.navigate("read?book=" + msg[0]) }, {
+        if (!isShowMenu) DetailBottomBar(JSONObject(msg[0]), isClickBooks, { isShowMenu = !isShowMenu }, {
+          DATA.setDataBook(JSONObject(msg[0]))
+          navHostController.navigate("read")
+        }, {
           isClickBooks = if (DB.isInBooks(msg = JSONObject(msg[0]))) {
             DB.deleteBook(msg = JSONObject(msg[0]))
             !isClickBooks
