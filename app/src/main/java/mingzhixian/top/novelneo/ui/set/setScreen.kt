@@ -15,11 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import mingzhixian.top.novelneo.R
 import mingzhixian.top.novelneo.ui.NovelNeoBar
 import mingzhixian.top.novelneo.ui.getAppContext
@@ -30,7 +28,7 @@ import mingzhixian.top.novelneo.ui.theme.NovelNeoTheme
 fun SetBody(navHostController: NavHostController) {
   NovelNeoTheme {
     Scaffold(
-      topBar = { NovelNeoBar(isNeedBack = true, name = "设置", image = 0, onClick = {}, navController = navHostController) }
+      topBar = { NovelNeoBar(isNeedBack = true, name = "设置", image = 0, onClick = {}, navController = navHostController) },
     ) { innerPadding ->
       Column(
         modifier = Modifier
@@ -64,9 +62,13 @@ fun SetBody(navHostController: NavHostController) {
             .padding(0.dp, 20.dp)
             .size(28.dp)
             .clickable {
-              val uri = Uri.parse("https://github.com/mingzhixian/NovelNeo")
-              val intent = Intent(Intent.ACTION_VIEW, uri)
-              getAppContext().startActivity(intent)
+              try {
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.addCategory(Intent.CATEGORY_BROWSABLE)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                intent.data = Uri.parse("https://github.com/mingzhixian/NovelNeo")
+                getAppContext().startActivity(intent)
+              } catch (e: Exception) { }
             }
         )
         Text(
