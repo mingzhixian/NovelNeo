@@ -44,8 +44,16 @@ interface BooksDao {
   fun insertBook(book: Book)
   
   //书架移除书
-  @Query("DELETE FROM books where title=:bookTitle")
+  @Query("delete from books where title=:bookTitle")
   fun deleteBook(bookTitle: String)
+  
+  //更新阅读进度
+  @Query("update books set current=:current,currentPage=:currentPage where title=:bookTitle")
+  fun updateBook(bookTitle: String, current: Int, currentPage: Int)
+  
+  //更新书本状态
+  @Query("update books set latest=:latest,status=:status where title=:bookTitle")
+  fun updateBookStatus(bookTitle: String,latest: String,status: Int)
 }
 
 //阅读统计
@@ -58,7 +66,7 @@ class Count(
   //当天字数统计
   @ColumnInfo var wordCount: Int,
   //当天阅读时长统计
-  @ColumnInfo var hourCount: Int,
+  @ColumnInfo var hourCount: Double,
 )
 
 @Dao
@@ -77,7 +85,7 @@ interface CountDao {
   
   //更新今天的数据
   @Query("update count set wordCount=:word,hourCount=:hour where day=:day")
-  fun update(day: Int, word: Int, hour: Int)
+  fun update(day: Int, word: Int, hour: Double)
 }
 
 @Database(entities = [Book::class, Count::class], version = 2)
@@ -145,7 +153,7 @@ class DbTool(context: Context) {
   
   //新加一本书到书架
   fun newBook(msg: JSONObject) {
-    booksDao.insertBook(Book(msg.getString("title"), msg.getString("author"), msg.getString("cover"), msg.getString("sort"), msg.getString("content"), msg.getString("url"), msg.getInt("current"), msg.getInt("currentPage"), 2, msg.getString("latest"), msg.getString("menu")))
+    booksDao.insertBook(Book(msg.getString("title"), msg.getString("author"), msg.getString("cover"), msg.getString("sort"), msg.getString("content"), msg.getString("url"), msg.getInt("current"), msg.getInt("currentPage"), 2, msg.getString("latest"), msg.getJSONArray("menu").toString()))
   }
   
   //书架移除一本书
@@ -153,12 +161,22 @@ class DbTool(context: Context) {
     booksDao.deleteBook(msg.getString("title"))
   }
   
+  //更新一本书的阅读进度
+  fun updateCurrent(msg: JSONObject) {
+    booksDao.updateBook(msg.getString("title"), msg.getInt("current"), msg.getInt("currentPage"))
+  }
+  
+  //更新一本书的最新章节，书本状态
+  fun updateBook(msg: JSONObject){
+    booksDao.updateBookStatus(msg.getString("title"), msg.getString("latest"), msg.getInt("status"))
+  }
+  
   //获取数据库本月阅读统计
   fun getStatistics(): String {
     val count = countDao.getCounts()
     //新建json对象
     var wordCount = 0
-    var hourCount = 0
+    var hourCount = 0.0
     var month = 0
     val info = JSONObject()
     val ary = JSONArray()
@@ -180,8 +198,9 @@ class DbTool(context: Context) {
   }
   
   //更新当天的阅读统计
-  fun updateCount(word: Int, hour: Int) {
-    countDao.update(Calendar.getInstance().get(Calendar.DAY_OF_MONTH), word = word, hour = hour)
+  fun updateCount(word: Int, hour: Double) {
+    val day = Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
+    countDao.update(day, word = word, hour = countDao.getCounts()[day - 1].hourCount + hour)
   }
   
   //数据库统计清空重建（下一个月）
@@ -192,7 +211,7 @@ class DbTool(context: Context) {
     val month = Calendar.getInstance().get(Calendar.MONTH) + 1
     val days = if (month in listOf(2, 4, 6, 9, 11)) 30 else 31
     for (i in 1..days) {
-      countDao.newDay(Count(month, i, 0, 0))
+      countDao.newDay(Count(month, i, 0, 0.0))
     }
   }
   

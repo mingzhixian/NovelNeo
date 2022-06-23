@@ -38,23 +38,20 @@ import kotlin.concurrent.thread
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailBody(navHostController: NavHostController, m: JSONObject) {
+  val isShowLoading = rememberSwipeRefreshState(true)
+  var msg = DATA.getDataBook()
+  var isShowMenu by rememberSaveable { mutableStateOf(false) }
+  var isClickBooks by remember { mutableStateOf(false) }
   NovelNeoTheme {
-    val isShowLoading = rememberSwipeRefreshState(false)
-    val msg = rememberSaveable { mutableListOf(m.toString()) }
-    var isShowMenu by rememberSaveable { mutableStateOf(false) }
-    var isClickBooks by remember { mutableStateOf(false) }
     Scaffold(
       topBar = { NovelNeoBar(isNeedBack = true, name = "详情", image = 0, onClick = {}, navController = navHostController) },
       bottomBar = {
-        if (!isShowMenu) DetailBottomBar(JSONObject(msg[0]), isClickBooks, { isShowMenu = !isShowMenu }, {
-          DATA.setDataBook(JSONObject(msg[0]))
-          navHostController.navigate("read")
-        }, {
-          isClickBooks = if (DB.isInBooks(msg = JSONObject(msg[0]))) {
-            DB.deleteBook(msg = JSONObject(msg[0]))
+        if (!isShowMenu) DetailBottomBar(isClickBooks, { isShowMenu = !isShowMenu }, { navHostController.navigate("read") }, {
+          isClickBooks = if (DB.isInBooks(msg = msg)) {
+            DB.deleteBook(msg = msg)
             !isClickBooks
           } else {
-            DB.newBook(msg = JSONObject(msg[0]))
+            DB.newBook(msg = msg)
             !isClickBooks
           }
         })
@@ -63,24 +60,18 @@ fun DetailBody(navHostController: NavHostController, m: JSONObject) {
       SwipeRefresh(state = isShowLoading, onRefresh = {
         isShowLoading.isRefreshing = true
         thread {
-          msg[0] = NETWORK.getDetail(m).toString()
+          DATA.setDataBook(NETWORK.getDetail(m))
+          msg=DATA.getDataBook()
           isShowLoading.isRefreshing = false
         }
       }, modifier = Modifier.padding(innerPadding)) {
-        if (!isShowLoading.isRefreshing && JSONObject(msg[0]).getString("cover") == "") {
-          isShowLoading.isRefreshing = true
-          thread {
-            msg[0] = NETWORK.getDetail(m).toString()
-            isShowLoading.isRefreshing = false
-          }
-        } else {
-          val msgJson = JSONObject(msg[0])
+        if (!isShowLoading.isRefreshing) {
           //上半部分
           Box {
             AsyncImage(
               //网络图片
               model = ImageRequest.Builder(LocalContext.current)
-                .data(msgJson.getString("cover"))
+                .data(msg.getString("cover"))
                 .transformations(BlurTransformation(LocalContext.current))
                 .build(),
               contentDescription = "头图背景",
@@ -101,7 +92,7 @@ fun DetailBody(navHostController: NavHostController, m: JSONObject) {
               //封面
               AsyncImage(
                 //网络图片
-                model = msgJson.getString("cover"),
+                model = msg.getString("cover"),
                 contentDescription = "封面",
                 modifier = Modifier
                   .padding(28.dp, 40.dp, 0.dp, 40.dp)
@@ -115,7 +106,7 @@ fun DetailBody(navHostController: NavHostController, m: JSONObject) {
                 Spacer(modifier = Modifier.weight(1f))
                 //标题
                 Text(
-                  text = "《" + msgJson.getString("title") + "》",
+                  text = "《" + msg.getString("title") + "》",
                   color = Color.White,
                   overflow = TextOverflow.Ellipsis,
                   fontSize = 18.sp,
@@ -127,7 +118,7 @@ fun DetailBody(navHostController: NavHostController, m: JSONObject) {
                 )
                 //作者
                 Text(
-                  text = "作者:" + msgJson.getString("author"),
+                  text = "作者:" + msg.getString("author"),
                   color = Color.White.copy(alpha = 0.8f),
                   overflow = TextOverflow.Ellipsis,
                   fontSize = 16.sp,
@@ -139,7 +130,7 @@ fun DetailBody(navHostController: NavHostController, m: JSONObject) {
                 )
                 //类别
                 Text(
-                  text = msgJson.getString("sort"),
+                  text = msg.getString("sort"),
                   color = Color.White.copy(alpha = 0.6f),
                   overflow = TextOverflow.Ellipsis,
                   fontSize = 16.sp,
@@ -163,7 +154,7 @@ fun DetailBody(navHostController: NavHostController, m: JSONObject) {
             item {
               //详情
               Text(
-                text = msgJson.getString("content"),
+                text = msg.getString("content"),
                 fontSize = 16.sp,
                 modifier = Modifier
                   .fillMaxWidth()
@@ -172,16 +163,25 @@ fun DetailBody(navHostController: NavHostController, m: JSONObject) {
             }
           }
           //目录
-          if (isShowMenu) Menu(menu = JSONArray(msgJson.getString("menu"))) { isShowMenu = !isShowMenu }
+          if (isShowMenu) Menu(msg, { isShowMenu = !isShowMenu }, navHostController)
         }
       }
     }
+  }
+  if (msg.getString("title") == m.getString("title")) {
+    thread {
+      DATA.setDataBook(NETWORK.getDetail(m))
+      msg = DATA.getDataBook()
+      isShowLoading.isRefreshing = false
+    }
+  } else {
+    isShowLoading.isRefreshing = false
   }
 }
 
 //底部栏
 @Composable
-fun DetailBottomBar(msg: JSONObject, isClickBooks: Boolean, onClick1: () -> Unit, onClick2: () -> Unit, onClick3: () -> Unit) {
+fun DetailBottomBar(isClickBooks: Boolean, onClick1: () -> Unit, onClick2: () -> Unit, onClick3: () -> Unit) {
   Row(modifier = Modifier.height(60.dp)) {
     Column(
       modifier = Modifier
@@ -231,7 +231,7 @@ fun DetailBottomBar(msg: JSONObject, isClickBooks: Boolean, onClick1: () -> Unit
       )
       if (isClickBooks || !isClickBooks) {
         Text(
-          text = if (DB.isInBooks(msg = msg)) "移出书架" else "加入书架",
+          text = if (DB.isInBooks(msg = DATA.getDataBook())) "移出书架" else "加入书架",
           fontSize = 16.sp
         )
       }
@@ -241,7 +241,8 @@ fun DetailBottomBar(msg: JSONObject, isClickBooks: Boolean, onClick1: () -> Unit
 
 //目录
 @Composable
-fun Menu(menu: JSONArray, onClick: () -> Unit) {
+fun Menu(msg: JSONObject, onClick: () -> Unit, navHostController: NavHostController) {
+  val menu: JSONArray = msg.getJSONArray("menu")
   Box(
     modifier = Modifier
       .fillMaxSize()
@@ -269,7 +270,11 @@ fun Menu(menu: JSONArray, onClick: () -> Unit) {
       ) {
         for (index in 0 until menu.length()) {
           item {
-            MenuItem(menu.getJSONObject(index))
+            MenuItem(menu.getJSONObject(index)) {
+              msg.put("current", index)
+              DATA.setDataBook(msg)
+              navHostController.navigate("read")
+            }
           }
           if (index < menu.length() - 1) {
             item {
@@ -288,13 +293,13 @@ fun Menu(menu: JSONArray, onClick: () -> Unit) {
 
 //目录用，条目
 @Composable
-fun MenuItem(msg: JSONObject) {
+fun MenuItem(msg: JSONObject, onClick: () -> Unit) {
   Row(
     modifier = Modifier
       .padding(12.dp, 8.dp)
       .fillMaxWidth()
       .height(18.dp)
-      .clickable {},
+      .clickable { onClick() },
     verticalAlignment = Alignment.CenterVertically
   ) {
     Text(

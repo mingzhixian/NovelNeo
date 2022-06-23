@@ -28,6 +28,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import mingzhixian.top.novelneo.ui.BookCard
+import mingzhixian.top.novelneo.ui.DATA
 import mingzhixian.top.novelneo.ui.NETWORK
 import mingzhixian.top.novelneo.ui.NovelNeoBar
 import mingzhixian.top.novelneo.ui.theme.NovelNeoTheme
@@ -132,7 +133,10 @@ fun SortsBody(navController: NavHostController) {
             } else if(books[selectSort].size != 1) {
               //列表
               items(books[selectSort]) { book ->
-                BookCard(JSONObject(book), MaterialTheme.colorScheme.surfaceVariant, { navController.navigate("detail?book=$book") }, {})
+                BookCard(JSONObject(book), MaterialTheme.colorScheme.surfaceVariant, {
+                  DATA.setDataBook(JSONObject(book))
+                  navController.navigate("detail")
+                                                                                     }, {})
               }
             }
             //底部空白

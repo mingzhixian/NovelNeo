@@ -30,6 +30,12 @@ import kotlin.concurrent.thread
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun MainBody(navController: NavHostController) {
+  //最近更新
+  val items = rememberSaveable { mutableListOf(listOf(JSONObject().toString())) }
+  //获取数据库数据
+  val info = rememberSaveable { mutableListOf(JSONObject().toString()) }
+  //是否显示加载动画
+  val isShowLoading = rememberSwipeRefreshState(true)
   NovelNeoTheme {
     //状态栏、导航栏
     val statusbarColor = MaterialTheme.colorScheme.background
@@ -38,12 +44,6 @@ fun MainBody(navController: NavHostController) {
       setSystemBarsColor(statusbarColor, !isSystemInDarkTheme())
       setNavigationBarColor(statusbarColor, !isSystemInDarkTheme())
     }
-    //最近更新
-    val items = rememberSaveable { mutableListOf(listOf(JSONObject().toString())) }
-    //获取数据库数据
-    val info = rememberSaveable { mutableListOf(JSONObject().toString()) }
-    //是否显示加载动画
-    val isShowLoading = rememberSwipeRefreshState(false)
     SwipeRefresh(state = isShowLoading, onRefresh = {
       thread {
         isShowLoading.isRefreshing = true
@@ -98,15 +98,7 @@ fun MainBody(navController: NavHostController) {
           item {
             Spacer(modifier = Modifier.height(30.dp))
           }
-          if (!isShowLoading.isRefreshing && !JSONObject(info[0]).has("month")) {
-            thread {
-              isShowLoading.isRefreshing = true
-              NETWORK.getBooksUpdate()
-              items[0] = DB.getUpdateBooks()
-              info[0] = DB.getStatistics()
-              isShowLoading.isRefreshing = false
-            }
-          } else {
+          if (!isShowLoading.isRefreshing) {
             //最近更新
             item {
               Box(
@@ -192,7 +184,7 @@ fun MainBody(navController: NavHostController) {
                               .padding(0.dp, 2.dp),
                           ) {
                             for (i2 in 1..7) {
-                              val ope = String.format("%.1f", (heatMap.getJSONObject(index).getInt("hourCount").toFloat() / 18)).toFloat()
+                              val ope = String.format("%.1f", (heatMap.getJSONObject(index).getDouble("hourCount") / 18.0)).toFloat()
                               index++
                               Box(
                                 modifier = Modifier
@@ -215,7 +207,7 @@ fun MainBody(navController: NavHostController) {
                             if (index >= heatMap.length()) {
                               Box(modifier = Modifier.size(20.dp)) {}
                             } else {
-                              val ope = String.format("%.1f", (heatMap.getJSONObject(index).getInt("hourCount").toFloat() / 18)).toFloat()
+                              val ope = String.format("%.1f", (heatMap.getJSONObject(index).getDouble("hourCount") / 18.0)).toFloat()
                               index++
                               Box(
                                 modifier = Modifier
@@ -331,6 +323,17 @@ fun MainBody(navController: NavHostController) {
         }
       }
     }
+  }
+  if (!JSONObject(info[0]).has("month")){
+    thread {
+      NETWORK.getBooksUpdate()
+      items[0] = DB.getUpdateBooks()
+      info[0] = DB.getStatistics()
+      isShowLoading.isRefreshing = false
+    }
+  }else
+  {
+    isShowLoading.isRefreshing = false
   }
 }
 

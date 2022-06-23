@@ -1,9 +1,9 @@
 package mingzhixian.top.novelneo.utils
 
+import androidx.lifecycle.ViewModel
 import org.json.JSONObject
 
-//懒得用viewModel,自己实现的全局变量管理
-class Data {
+class Data : ViewModel() {
   private var book = JSONObject()
   fun setDataBook(b: JSONObject) {
     book = b

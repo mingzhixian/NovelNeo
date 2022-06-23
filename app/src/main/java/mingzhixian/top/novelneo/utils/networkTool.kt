@@ -2,6 +2,7 @@ package mingzhixian.top.novelneo.utils
 
 import android.content.ContentValues.TAG
 import android.util.Log
+import mingzhixian.top.novelneo.ui.DB
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONArray
@@ -16,11 +17,30 @@ class NetworkTool {
     .connectTimeout(50L, TimeUnit.SECONDS)
     .readTimeout(60L, TimeUnit.SECONDS)
     .build()
-  val requestBuilder = Request.Builder()
+  private val requestBuilder = Request.Builder()
   
   //联网获取书架书籍更新
   fun getBooksUpdate() {
-    //todo 对数据库操作
+    val items = ArrayList<ArrayList<String>>()
+    items.add(DB.getUpdateBooks())
+    items.add(DB.getReadBooks())
+    items.add(DB.getHaveReadBooks())
+    for (i1 in items) {
+      for (i2 in i1) {
+        val item = JSONObject(i2)
+        val newItem = getDetail(item)
+        //以前的全部变为2
+        newItem.put("status", 2)
+        //判断是否最近更新
+        if (newItem.getString("latest") != item.getString("latest")) {
+          newItem.put("status", 1)
+        }
+        //判断是否阅读完成
+        if (newItem.getInt("current") == newItem.getJSONArray("menu").length() - 1) {
+          newItem.put("status", 3)
+        }
+      }
+    }
   }
   
   //联网获取小说详情
@@ -56,8 +76,9 @@ class NetworkTool {
   //联网获取小说内容,传入目录列表以及获取章节
   fun getBody(msg: JSONObject): String {
     val url = JSONArray(msg.getString("menu")).getJSONObject(msg.getInt("current")).getString("url")
-    val body = getDoc(url)!!.select("div[id=content]").get(0).text()
-    Log.e(TAG, "getBody: $body", )
+    var body = getDoc(url)!!.select("div[id=content]").get(0).html()
+    body = body.replace("&nbsp;&nbsp;", " ")
+    body = body.replace("<br>", "")
     return body
   }
 
@@ -191,4 +212,5 @@ class NetworkTool {
     //把字符串内容转换成Document节点内容
     return Jsoup.parse(str)
   }
+  
 }

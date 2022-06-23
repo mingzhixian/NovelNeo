@@ -33,11 +33,7 @@ fun BooksBody(navHostController: NavHostController) {
   //已读完
   val items3 = rememberSaveable { mutableListOf(listOf(JSONObject().toString())) }
   //是否显示加载动画
-  val isShowLoading = rememberSwipeRefreshState(false)
-  //获取数据
-  items1[0] = DB.getUpdateBooks()
-  items2[0] = DB.getReadBooks()
-  items3[0] = DB.getHaveReadBooks()
+  val isShowLoading = rememberSwipeRefreshState(true)
   NovelNeoTheme {
     Scaffold(
       topBar = { NovelNeoBar(isNeedBack = true, name = "书架", image = 0, onClick = {}, navController = navHostController) }
@@ -179,5 +175,10 @@ fun BooksBody(navHostController: NavHostController) {
       }
     }
   }
+  //获取数据
+  items1[0] = DB.getUpdateBooks()
+  items2[0] = DB.getReadBooks()
+  items3[0] = DB.getHaveReadBooks()
+  isShowLoading.isRefreshing = false
 }
 
