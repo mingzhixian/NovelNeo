@@ -38,8 +38,9 @@ import kotlin.concurrent.thread
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailBody(navHostController: NavHostController, m: JSONObject) {
+  //compose会重复绘制，用此避免重复获取
+  var isFirst by rememberSaveable { mutableStateOf(true) }
   val isShowLoading = rememberSwipeRefreshState(true)
-  var msg = DATA.getDataBook()
   var isShowMenu by rememberSaveable { mutableStateOf(false) }
   var isClickBooks by remember { mutableStateOf(false) }
   NovelNeoTheme {
@@ -47,11 +48,11 @@ fun DetailBody(navHostController: NavHostController, m: JSONObject) {
       topBar = { NovelNeoBar(isNeedBack = true, name = "详情", image = 0, onClick = {}, navController = navHostController) },
       bottomBar = {
         if (!isShowMenu) DetailBottomBar(isClickBooks, { isShowMenu = !isShowMenu }, { navHostController.navigate("read") }, {
-          isClickBooks = if (DB.isInBooks(msg = msg)) {
-            DB.deleteBook(msg = msg)
+          isClickBooks = if (DB.isInBooks(msg = DATA.getDataBook())) {
+            DB.deleteBook(msg = DATA.getDataBook())
             !isClickBooks
           } else {
-            DB.newBook(msg = msg)
+            DB.newBook(msg = DATA.getDataBook())
             !isClickBooks
           }
         })
@@ -61,11 +62,11 @@ fun DetailBody(navHostController: NavHostController, m: JSONObject) {
         isShowLoading.isRefreshing = true
         thread {
           DATA.setDataBook(NETWORK.getDetail(m))
-          msg=DATA.getDataBook()
           isShowLoading.isRefreshing = false
         }
       }, modifier = Modifier.padding(innerPadding)) {
         if (!isShowLoading.isRefreshing) {
+          val msg=DATA.getDataBook()
           //上半部分
           Box {
             AsyncImage(
@@ -168,13 +169,13 @@ fun DetailBody(navHostController: NavHostController, m: JSONObject) {
       }
     }
   }
-  if (msg.getString("title") == m.getString("title")) {
+  if (!DATA.getDataBook().has("menu") && isFirst) {
+    isFirst = false
     thread {
       DATA.setDataBook(NETWORK.getDetail(m))
-      msg = DATA.getDataBook()
       isShowLoading.isRefreshing = false
     }
-  } else {
+  } else if (DATA.getDataBook().has("menu")) {
     isShowLoading.isRefreshing = false
   }
 }
