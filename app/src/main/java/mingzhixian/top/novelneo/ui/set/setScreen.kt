@@ -60,7 +60,7 @@ fun SetBody(navHostController: NavHostController) {
           painter = painterResource(R.drawable.github), contentDescription = "github",
           modifier = Modifier
             .padding(0.dp, 20.dp)
-            .size(28.dp)
+            .size(34.dp)
             .clickable {
               try {
                 val intent = Intent(Intent.ACTION_VIEW)

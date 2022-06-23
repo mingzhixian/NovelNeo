@@ -1,9 +1,7 @@
 package mingzhixian.top.novelneo.ui.read
 
 import android.annotation.SuppressLint
-import android.content.ContentValues
 import android.content.Context
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -98,16 +96,17 @@ fun ReadBody(navHostController: NavHostController, msg: JSONObject) {
           )
         }
         item {
-          Row(modifier = Modifier.padding(50.dp, 40.dp)) {
+          Row(modifier = Modifier.padding(16.dp, 40.dp)) {
+            Spacer(modifier = Modifier.weight(1f))
             Text(
               text = "上一章",
-              fontSize = 18.sp,
+              fontSize = 16.sp,
               fontWeight = FontWeight.SemiBold,
               color = MaterialTheme.colorScheme.onTertiary,
               modifier = Modifier
                 .clip(shape = RoundedCornerShape(20.dp))
                 .background(MaterialTheme.colorScheme.tertiary)
-                .padding(25.dp, 16.dp)
+                .padding(24.dp, 16.dp)
                 .clickable {
                   msg.put("current", msg.getInt("current") - 1)
                   thread {
@@ -132,16 +131,16 @@ fun ReadBody(navHostController: NavHostController, msg: JSONObject) {
                   }
                 },
             )
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.weight(0.8f))
             Text(
               text = "下一章",
-              fontSize = 18.sp,
+              fontSize = 16.sp,
               fontWeight = FontWeight.SemiBold,
               color = MaterialTheme.colorScheme.onTertiary,
               modifier = Modifier
                 .clip(shape = RoundedCornerShape(20.dp))
                 .background(MaterialTheme.colorScheme.tertiary)
-                .padding(25.dp, 16.dp)
+                .padding(24.dp, 16.dp)
                 .clickable {
                   msg.put("current", msg.getInt("current") + 1)
                   thread {
@@ -158,7 +157,6 @@ fun ReadBody(navHostController: NavHostController, msg: JSONObject) {
                     hour = (endTime-startTime).toDouble() / (1000 * 60 * 60)
                     startTime = endTime
                     //更新数据库
-                    Log.e(ContentValues.TAG, "ReadBody: $hour", )
                     DB.updateCount(word, hour)
                     DB.updateCurrent(msg = msg)
                   }
@@ -167,6 +165,7 @@ fun ReadBody(navHostController: NavHostController, msg: JSONObject) {
                   }
                 }
             )
+            Spacer(modifier = Modifier.weight(1f))
           }
         }
       }
