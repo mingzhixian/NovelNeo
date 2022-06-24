@@ -23,6 +23,7 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import mingzhixian.top.novelneo.R
 import mingzhixian.top.novelneo.ui.BookCard
+import mingzhixian.top.novelneo.ui.DATA
 import mingzhixian.top.novelneo.ui.NETWORK
 import mingzhixian.top.novelneo.ui.NovelNeoBar
 import mingzhixian.top.novelneo.ui.theme.NovelNeoTheme
@@ -91,7 +92,10 @@ fun SearchBody(navController: NavHostController) {
           LazyColumn(verticalArrangement = Arrangement.spacedBy(18.dp)) {
             if (!isShowLoading.isRefreshing && searchBooks[0].size != 1) {
               itemsIndexed(searchBooks[0]) { _, msg ->
-                BookCard(msg = JSONObject(msg), MaterialTheme.colorScheme.surfaceVariant, onClick = { navController.navigate("detail?book=$msg") }, onLongClick = {})
+                BookCard(msg = JSONObject(msg), MaterialTheme.colorScheme.surfaceVariant, onClick = {
+                  DATA.setDataBook(JSONObject(msg))
+                  navController.navigate("detail")
+                }, onLongClick = {})
               }
             }
             item {
