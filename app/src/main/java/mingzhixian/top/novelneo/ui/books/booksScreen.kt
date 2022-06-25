@@ -38,7 +38,7 @@ fun BooksBody(navHostController: NavHostController) {
     Scaffold(
       topBar = { NovelNeoBar(isNeedBack = true, name = "书架", image = 0, onClick = {}, navController = navHostController) }
     ) { innerPadding ->
-      SwipeRefresh(state = isShowLoading, onRefresh = {
+      SwipeRefresh(state = isShowLoading, modifier = Modifier.padding(innerPadding), onRefresh = {
         thread {
           isShowLoading.isRefreshing = true
           NETWORK.getBooksUpdate()
@@ -50,7 +50,6 @@ fun BooksBody(navHostController: NavHostController) {
       }) {
         LazyColumn(
           modifier = Modifier
-            .padding(innerPadding)
             .background(MaterialTheme.colorScheme.background)
             .fillMaxSize()
         ) {

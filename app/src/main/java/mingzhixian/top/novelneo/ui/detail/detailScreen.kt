@@ -47,15 +47,22 @@ fun DetailBody(navHostController: NavHostController, m: JSONObject) {
     Scaffold(
       topBar = { NovelNeoBar(isNeedBack = true, name = "详情", image = 0, onClick = {}, navController = navHostController) },
       bottomBar = {
-        if (!isShowMenu) DetailBottomBar(isClickBooks, { isShowMenu = !isShowMenu }, { navHostController.navigate("read") }, {
-          isClickBooks = if (DB.isInBooks(msg = DATA.getDataBook())) {
-            DB.deleteBook(msg = DATA.getDataBook())
-            !isClickBooks
+        if (!isShowMenu) {
+          if (!isShowLoading.isRefreshing) {
+            DetailBottomBar(isClickBooks, { isShowMenu = !isShowMenu }, { navHostController.navigate("read") }) {
+              isClickBooks = if (DB.isInBooks(msg = DATA.getDataBook())) {
+                DB.deleteBook(msg = DATA.getDataBook())
+                !isClickBooks
+              } else {
+                DB.newBook(msg = DATA.getDataBook())
+                !isClickBooks
+              }
+            }
           } else {
-            DB.newBook(msg = DATA.getDataBook())
-            !isClickBooks
+            //在未加载完成之前不允许点击
+            DetailBottomBar(isClickBooks, { }, { }, {})
           }
-        })
+        }
       }
     ) { innerPadding ->
       SwipeRefresh(state = isShowLoading, onRefresh = {
@@ -66,7 +73,7 @@ fun DetailBody(navHostController: NavHostController, m: JSONObject) {
         }
       }, modifier = Modifier.padding(innerPadding)) {
         if (!isShowLoading.isRefreshing) {
-          val msg=DATA.getDataBook()
+          val msg = DATA.getDataBook()
           //上半部分
           Box {
             AsyncImage(

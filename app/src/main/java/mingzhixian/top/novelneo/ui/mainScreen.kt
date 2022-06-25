@@ -122,10 +122,10 @@ fun MainBody(navController: NavHostController) {
                     BookCard(msg = JSONObject(items[0][index]), back = MaterialTheme.colorScheme.surface, onClick = {
                       DATA.setDataBook(JSONObject(items[0][index]))
                       navController.navigate("read")
-                                                                                                                    }, onLongClick = {
+                    }, onLongClick = {
                       DATA.setDataBook(JSONObject(items[0][index]))
                       navController.navigate("detail")
-                                                                                                                    })
+                    })
                     if (index < items.size - 1) {
                       Spacer(modifier = Modifier.height(12.dp))
                     }
@@ -324,15 +324,14 @@ fun MainBody(navController: NavHostController) {
       }
     }
   }
-  if (!JSONObject(info[0]).has("month")){
+  if (!JSONObject(info[0]).has("month")) {
     thread {
       NETWORK.getBooksUpdate()
       items[0] = DB.getUpdateBooks()
       info[0] = DB.getStatistics()
       isShowLoading.isRefreshing = false
     }
-  }else
-  {
+  } else {
     isShowLoading.isRefreshing = false
   }
 }

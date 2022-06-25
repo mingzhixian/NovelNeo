@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     mContext = applicationContext
     //检测是否为新的一个月
-    val month = Calendar.getInstance().get(Calendar.MONTH)
+    val month = Calendar.getInstance().get(Calendar.MONTH) + 1
     val count = JSONObject(DB.getStatistics())
     if (count.getJSONArray("heatMap").length() == 0 || count.getInt("month") != month) DB.reSetCount()
     //使界面延展至所有导航栏和状态栏

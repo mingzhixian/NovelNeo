@@ -59,8 +59,8 @@ fun ReadBody(navHostController: NavHostController, msg: JSONObject) {
     //时间
     var startTime = System.currentTimeMillis()
     var endTime: Long
-    var word = 0
-    var hour = 0.0
+    var word: Int
+    var hour: Double
     //页面
     Scaffold {
       val wait = "加载中"
@@ -120,7 +120,7 @@ fun ReadBody(navHostController: NavHostController, msg: JSONObject) {
                     body.value = NETWORK.getBody(msg = msg)
                     //获取阅读时间
                     endTime = System.currentTimeMillis()
-                    hour = (endTime-startTime).toDouble() / (1000 * 60 * 60)
+                    hour = (endTime - startTime).toDouble() / (1000 * 60 * 60)
                     startTime = endTime
                     //更新数据库
                     DB.updateCount(word, hour)
@@ -154,7 +154,7 @@ fun ReadBody(navHostController: NavHostController, msg: JSONObject) {
                     body.value = NETWORK.getBody(msg = msg)
                     //获取阅读时间
                     endTime = System.currentTimeMillis()
-                    hour = (endTime-startTime).toDouble() / (1000 * 60 * 60)
+                    hour = (endTime - startTime).toDouble() / (1000 * 60 * 60)
                     startTime = endTime
                     //更新数据库
                     DB.updateCount(word, hour)
